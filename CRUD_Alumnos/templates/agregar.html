@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Agregar alumno</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="formulario">
+
+        <h1>Agregar alumno</h1>
+
+        <form method="POST">
+
+            <label>Nombre:</label>
+
+            <input type="text"
+                   name="nombre"
+                   required>
+
+
+            <label>Apellido:</label>
+
+            <input type="text"
+                   name="apellido"
+                   required>
+
+
+            <label>Edad:</label>
+
+            <input type="number"
+                   name="edad"
+                   required>
+
+
+            <label>Grupo:</label>
+
+            <input type="text"
+                   name="grupo"
+                   required>
+
+
+            <label>Correo:</label>
+
+            <input type="email"
+                   name="correo"
+                   required>
+
+
+            <button type="submit">
+                Guardar alumno
+            </button>
+
+        </form>
+
+
+        <a href="{{ url_for('index') }}"
+           class="volver">
+            ← Regresar
+        </a>
+
+    </div>
+
+</body>
+
+</html>

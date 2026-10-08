@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block contenido %}
+<section>
+<h2>Editar alumno</h2>
+<p>Corrige los datos y guarda los cambios.</p>
+<form method="post"
+action="{{ url_for('editar', id=alumno._id) }}" class="registro">
+<label>Nombre completo
+<input name="nombre" value="{{ alumno.nombre }}"
+
+required maxlength="80">
+
+</label>
+<label>Grupo
+<input name="grupo" value="{{ alumno.grupo }}"
+
+required maxlength="20">
+
+</label>
+<label>Turno
+<select name="turno" required>
+<option value="">Selecciona un turno</option>
+{% for opcion in ['Matutino', 'Vespertino'] %}
+<option value="{{ opcion }}"
+{% if alumno.get('turno') == opcion %}selected{% endif %}>
+{{ opcion }}
+</option>
+{% endfor %}
+</select>
+</label>
+<button>Guardar cambios</button>
+<a class="boton secundario" href="{{ url_for('inicio') }}">Cancelar</a>
+</form>
+</section>
+{% endblock %}
