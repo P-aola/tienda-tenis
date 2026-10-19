@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, abort
+from flask import jsonify
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from bson import ObjectId
@@ -6,24 +7,25 @@ from datetime import datetime
 
 app = Flask(__name__)
 cliente = MongoClient("mongodb://127.0.0.1:27017/", serverSelectionTimeoutMS=3000)
-base_datos = cliente["escuela_practica"]
-alumnos = base_datos["alumnos"]
+base_datos = cliente["tienda_tenis"]
+alumnos = base_datos["productos"]
 
-def leer_formulario():
-    nombre = request.form.get("nombre", "").strip()
-    grupo = request.form.get("grupo", "").strip()
-    turno = request.form.get("turno", "").strip()
-
-    if not nombre or not grupo or not turno:
-        abort(400, description="Completa nombre, grupo y turno.")
-
-    if len(nombre) > 80 or len(grupo) > 20:
-        abort(400, description="Usa hasta 80 caracteres en nombre y 20 en grupo.")
-
-    if turno not in ["Matutino", "Vespertino"]:
-        abort(400, description="Selecciona un turno válido.")
-
-    return {"nombre": nombre, "grupo": grupo, "turno": turno}
+def leer_formulario(datos=None):
+    if datos is None:
+        datos = request.form
+    campos = ("nombre", "categoria", "estado")
+    if any(not isinstance(datos.get(c, ""), str) for c in campos):
+        abort(400, description="Los campos deben contener texto.")
+    nombre = datos.get("nombre", "").strip()
+    categoria = datos.get("categoria", "").strip()
+    estado = datos.get("estado", "").strip()
+    if not nombre or not categoria or not estado:
+        abort(400, description="Completa nombre, categoría y estado.")
+    if len(nombre) > 80 or len(categoria) > 20:
+        abort(400, description="Máximo: nombre 80 y categoría 20.")
+    if estado not in ["Disponible", "Agotado"]:
+        abort(400, description="Selecciona un estado válido.")
+    return {"nombre": nombre, "categoria": categoria, "estado": estado}
 
 def buscar_alumno(id):
     if not ObjectId.is_valid(id):
@@ -72,6 +74,54 @@ def error_mongo(error):
 @app.errorhandler(404)
 def error_peticion(error):
     return render_template("error.html", mensaje=error.description), error.code
+
+def producto_json(producto):
+    return {
+        "id": str(producto["_id"]),
+        "nombre": producto["nombre"],
+        "categoria": producto["categoria"],
+        "estado": producto["estado"]
+    }
+
+def leer_json():
+    datos = request.get_json(silent=True)
+    if not isinstance(datos, dict):
+        abort(400, description="Envía un objeto JSON válido.")
+    return leer_formulario(datos)
+
+
+
+@app.route("/api/productos", methods=["GET", "POST"])
+def api_productos():
+    if request.method == "POST":
+        datos = leer_json()
+        resultado = alumnos.insert_one(datos)
+        producto = buscar_alumno(str(resultado.inserted_id))
+        return jsonify(producto_json(producto)), 201
+    lista = alumnos.find().sort("nombre", 1)
+    return jsonify([producto_json(p) for p in lista])
+
+@app.route("/api/productos/<id>", methods=["GET", "PUT", "DELETE"])
+def api_producto(id):
+    producto = buscar_alumno(id)
+    if request.method == "PUT":
+        datos = leer_json()
+        alumnos.update_one({"_id": producto["_id"]}, {"$set": datos})
+        return jsonify(producto_json(buscar_alumno(id)))
+    if request.method == "DELETE":
+        alumnos.delete_one({"_id": producto["_id"]})
+        return "", 204
+    return jsonify(producto_json(producto))
+
+@app.errorhandler(400)
+@app.errorhandler(404)
+@app.errorhandler(405)
+def error_peticion(error):
+    if request.path.startswith("/api/"):
+        return jsonify({"error": error.description}), error.code
+    return render_template(
+        "error.html", mensaje=error.description
+    ), error.code
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)

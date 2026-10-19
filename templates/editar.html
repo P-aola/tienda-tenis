@@ -1,27 +1,29 @@
 {% extends 'base.html' %}
 {% block contenido %}
 <section>
-<h2>Editar alumno</h2>
+<h2>Editar zapas</h2>
 <p>Corrige los datos y guarda los cambios.</p>
 <form method="post"
 action="{{ url_for('editar', id=alumno._id) }}" class="registro">
-<label>Nombre completo
-<input name="nombre" value="{{ alumno.nombre }}"
-
-required maxlength="80">
-
-</label>
-<label>Grupo
-<input name="grupo" value="{{ alumno.grupo }}"
-
-required maxlength="20">
-
-</label>
-<label>Turno
-<select name="turno" required>
-<option value="">Selecciona un turno</option>
-{% for opcion in ['Matutino', 'Vespertino'] %}
-<option value="{{ opcion }}"
+<<div class="mb-3">
+    <label for="nombre" class="form-label">Modelo de Tenis</label>
+    <input id="nombre" name="nombre" class="form-control" value="{{ alumno.nombre }}" required maxlength="80">
+</div>
+<div class="mb-3">
+    <label for="categoria" class="form-label">Categoría / Estilo</label>
+    <input id="categoria" name="categoria" class="form-control" value="{{ alumno.categoria }}" required maxlength="20">
+</div>
+<div class="mb-3">
+    <label for="estado" class="form-label">Estado</label>
+    <select id="estado" name="estado" class="form-select" required>
+        <option value="">Selecciona</option>
+        {% for opcion in ['Disponible', 'Agotado'] %}
+        <option value="{{ opcion }}" {% if alumno.get('estado') == opcion %}selected{% endif %}>
+            {{ opcion }}
+        </option>
+        {% endfor %}
+    </select>
+</div>
 {% if alumno.get('turno') == opcion %}selected{% endif %}>
 {{ opcion }}
 </option>

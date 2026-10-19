@@ -1,49 +1,53 @@
 {% extends 'base.html' %}
 {% block contenido %}
 <section>
-<h2>Agregar alumno</h2>
+<h2>Agregar zapas</h2>
 <form method="post" action="{{ url_for('agregar') }}" class="registro">
-<label>Nombre completo
-<input name="nombre" required maxlength="80">
-</label>
-<label>Grupo
-<input name="grupo" required maxlength="20">
-</label>
-<label>Turno
-<select name="turno" required>
-<option value="">Selecciona un turno</option>
-<option value="Matutino">Matutino</option>
-<option value="Vespertino">Vespertino</option>
-</select>
-</label>
-<button>Guardar alumno</button>
+<div class="col-md-6">
+    <label for="nombre" class="form-label">Modelo de Tenis</label>
+    <input id="nombre" name="nombre" class="form-control" required maxlength="80" placeholder="Ejemplo: Air Force 1">
+</div>
+<div class="col-md-3">
+    <label for="categoria" class="form-label">Categoría / Estilo</label>
+    <input id="categoria" name="categoria" class="form-control" required maxlength="20" placeholder="Ejemplo: Urbano">
+</div>
+<div class="col-md-3">
+    <label for="estado" class="form-label">Estado</label>
+    <select id="estado" name="estado" class="form-select" required>
+        <option value="">Selecciona</option>
+        <option value="Disponible">Disponible</option>
+        <option value="Agotado">Agotado</option>
+    </select>
+</div>
+<button class="boton">Guardar producto</button>
 </form>
 </section>
 <section>
-<h2>Alumnos registrados <span class="contador">{{ alumnos|length }}</span></h2>
+<h2>Productos registrados <span class="contador">{{ alumnos|length }}</span></h2>
 <div class="tabla">
 <table>
+<caption>Catálogo de Tienda de Tenis</caption>
 <thead><tr>
-<th>Nombre</th><th>Grupo</th><th>Turno</th><th>Acciones</th>
+<th>Producto</th><th>Categoría</th><th>Estado</th><th>Acciones</th>
 </tr></thead>
 <tbody>
 {% for alumno in alumnos %}
 <tr>
 <td>{{ alumno.nombre }}</td>
-<td>{{ alumno.grupo }}</td>
-<td>{{ alumno.get('turno', 'Sin asignar') }}</td>
+<td>{{ alumno.categoria }}</td>
+<td>{{ alumno.get('estado', 'Sin asignar') }}</td>
 <td><div class="acciones">
 <a class="boton secundario"
 href="{{ url_for('editar', id=alumno._id) }}">Editar</a>
 <form method="post"
 action="{{ url_for('eliminar', id=alumno._id) }}"
-onsubmit="return confirm('¿Eliminar este alumno?');">
+onsubmit="return confirm('¿Eliminar este producto?');">
 <button class="peligro">Eliminar</button>
 </form>
 </div></td>
 </tr>
 {% else %}
-<tr><td colspan="4">Todavía no hay alumnos registrados.</td></tr>
+<tr><td colspan="4">Todavía no hay productos. Agrega el primero.</td></tr>
 {% endfor %}
 </tbody>
 </table>
