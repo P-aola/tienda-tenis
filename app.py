@@ -5,22 +5,16 @@ from pymongo.errors import PyMongoError
 
 app = Flask(__name__)
 
-# Configuración segura para evitar el error de "MongoClient opened before fork"
+# 1. Primero defines la URI
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://127.0.0.1:27017/")
 
-def get_db():
-    cliente = MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000)
-    return cliente["tienda_tenis"]
+# 2. Luego creas el cliente
+cliente = MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000)
 
-# Y cuando necesites usar la colección en tus rutas, la llamas así:
-# base_datos = get_db()
-# alumnos = base_datos["productos"]
-
+# 3. Y después ya puedes usar el cliente para definir la base de datos
 base_datos = cliente["tienda_tenis"]
 alumnos = base_datos["productos"]
-cliente = MongoClient("mongodb://127.0.0.1:27017/", serverSelectionTimeoutMS=3000)
-base_datos = cliente["tienda_tenis"]
-alumnos = base_datos["productos"]
+
 
 def leer_formulario(datos=None):
     if datos is None:
