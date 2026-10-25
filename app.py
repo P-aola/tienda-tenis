@@ -1,4 +1,6 @@
 import os
+from pymongo import MongoClient
+from pymongo.errors import PyMongoError
 from flask import Flask, render_template, request, redirect, url_for, abort, jsonify
 from pymongo import MongoClient
 
