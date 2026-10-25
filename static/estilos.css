@@ -1,1 +1,191 @@
-*{box-sizing:border-box}body{font:16px/1.6 system-ui,sans-serif;background:#f4f5fa;color:#283349;margin:0}main{max-width:1050px;margin:auto;padding:38px 22px}header{margin-bottom:28px}h1{font-size:34px;margin:8px 0}h2{font-size:22px;margin:0 0 18px}.etiqueta{font-size:12px;letter-spacing:1.5px;color:#655185;font-weight:700}section{background:white;border:1px solid #dde1eb;border-radius:14px;padding:24px;margin-bottom:24px}.registro{display:flex;gap:16px;align-items:end;flex-wrap:wrap}label{display:flex;flex-direction:column;gap:7px;flex:1;min-width:180px;font-weight:600}input{font:inherit;border:1px solid #8c94a4;border-radius:7px;padding:10px;width:100%}button,.boton{display:inline-block;font:600 14px/1.5 system-ui;border:0;border-radius:7px;padding:12px 16px;background:#5c477e;color:white;text-decoration:none;cursor:pointer}.secundario{background:#e9e2f4;color:#493264}.peligro{background:#f7e3e5;color:#872e3d}.acciones{display:flex;gap:8px}.acciones form{margin:0}.tabla{overflow-x:auto}table{width:100%;border-collapse:collapse;text-align:left}th{background:#f2eef8}th,td{padding:14px;border-bottom:1px solid #e5e8ef}.contador{font-size:15px;background:#e5f2ed;color:#255546;border-radius:6px;padding:3px 9px}footer{font-size:13px;color:#586477}input:focus,button:focus-visible,a:focus-visible{outline:3px solid #a789d1;outline-offset:3px}
+/* Estilos generales para SneakerZone */
+body {
+    background-color: #f4f6f9;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333333;
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Encabezados y navegación superior */
+header {
+    margin-bottom: 25px;
+    border-bottom: 2px solid #eaeaea;
+    padding-bottom: 15px;
+}
+
+.etiqueta {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+h1 {
+    color: #1a1a1a;
+    font-size: 1.8rem;
+    margin-top: 5px;
+}
+
+p a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+p a:hover {
+    text-decoration: underline;
+}
+
+/* Secciones y Formularios */
+section {
+    margin-bottom: 35px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #eef0f3;
+}
+
+h2 {
+    font-size: 1.3rem;
+    color: #333333;
+    margin-bottom: 15px;
+}
+
+.registro {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-end;
+}
+
+.form-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.form-control, .form-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* Botones personalizados */
+.boton, button[type="submit"], .registro button {
+    background-color: #212529;
+    color: #ffffff;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.2s;
+}
+
+.boton:hover, button[type="submit"]:hover, .registro button:hover {
+    background-color: #343a40;
+}
+
+.boton.secundario {
+    background-color: #6c757d;
+}
+
+.boton.secundario:hover {
+    background-color: #5a6268;
+}
+
+.peligro {
+    background-color: #dc3545;
+    color: #ffffff;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.peligro:hover {
+    background-color: #c82333;
+}
+
+/* Tablas y Catálogo */
+.tabla {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: #ffffff;
+}
+
+caption {
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: 8px;
+    color: #555555;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eef0f3;
+}
+
+th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #fdfdfd;
+}
+
+.acciones {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.contador {
+    background-color: #e2e8f0;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: #2d3748;
+}
+
+/* Pie de página */
+footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.85rem;
+    color: #8c9297;
+    border-top: 1px solid #eaeaea;
+    padding-top: 15px;
+}
