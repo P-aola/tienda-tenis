@@ -1,20 +1,17 @@
 import os
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, abort, jsonify
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
+from bson import ObjectId
 
 app = Flask(__name__)
 
-# 1. Primero defines la URI
+# Configuración de MongoDB Atlas o local
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://127.0.0.1:27017/")
-
-# 2. Luego creas el cliente
 cliente = MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000)
-
-# 3. Y después ya puedes usar el cliente para definir la base de datos
 base_datos = cliente["tienda_tenis"]
 alumnos = base_datos["productos"]
-
 
 def leer_formulario(datos=None):
     if datos is None:
@@ -43,14 +40,14 @@ def buscar_alumno(id):
 
 @app.route("/")
 def index():
-   productos = list(get_db()["productos"].find())
-   return render_template("index.html", productos=productos)
+    productos = list(alumnos.find())
+    return render_template("index.html", productos=productos)
 
 @app.route("/agregar", methods=["POST"])
 def agregar():
     datos = leer_formulario()
     alumnos.insert_one(datos)
-    return redirect(url_for("inicio"))
+    return redirect(url_for("index"))
 
 @app.route("/editar/<id>", methods=["GET", "POST"])
 def editar(id):
@@ -58,14 +55,14 @@ def editar(id):
     if request.method == "POST":
         datos = leer_formulario()
         alumnos.update_one({"_id": alumno["_id"]}, {"$set": datos})
-        return redirect(url_for("inicio"))
+        return redirect(url_for("index"))
     return render_template("editar.html", alumno=alumno)
 
 @app.route("/eliminar/<id>", methods=["POST"])
 def eliminar(id):
     alumno = buscar_alumno(id)
     alumnos.delete_one({"_id": alumno["_id"]})
-    return redirect(url_for("inicio"))
+    return redirect(url_for("index"))
 
 @app.route("/ayuda")
 def ayuda():
@@ -75,11 +72,6 @@ def ayuda():
 @app.errorhandler(PyMongoError)
 def error_mongo(error):
     return render_template("error.html", mensaje="No fue posible trabajar con MongoDB. Revisa que el servicio esté iniciado y vuelve a intentar."), 503
-
-@app.errorhandler(400)
-@app.errorhandler(404)
-def error_peticion(error):
-    return render_template("error.html", mensaje=error.description), error.code
 
 def producto_json(producto):
     return {
@@ -94,8 +86,6 @@ def leer_json():
     if not isinstance(datos, dict):
         abort(400, description="Envía un objeto JSON válido.")
     return leer_formulario(datos)
-
-
 
 @app.route("/api/productos", methods=["GET", "POST"])
 def api_productos():
