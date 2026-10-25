@@ -40,8 +40,13 @@ def buscar_alumno(id):
 
 @app.route("/")
 def index():
-    productos = list(alumnos.find())
-    return render_template("index.html", productos=productos)
+    try:
+        # Intentamos conectar y buscar
+        productos = list(alumnos.find())
+        return render_template("index.html", productos=productos)
+    except Exception as e:
+        # Esto te mostrará el error EXACTO en la pantalla de tu web
+        return f"<h3>¡Aquí está la causa del error!</h3><p style='color:red;'>{str(e)}</p>"
 
 @app.route("/agregar", methods=["POST"])
 def agregar():
