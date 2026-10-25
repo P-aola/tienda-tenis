@@ -1,9 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for, abort
-from flask import jsonify
+import os
+from flask import Flask, render_template, request, redirect, url_for, abort, jsonify
 from pymongo import MongoClient
-from pymongo.errors import PyMongoError
-from bson import ObjectId
-from datetime import datetime
 
 app = Flask(__name__)
 mongo_uri = os.getenv("MONGO_URI", "mongodb://127.0.0.1:27017/")
