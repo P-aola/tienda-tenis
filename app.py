@@ -6,6 +6,11 @@ from bson import ObjectId
 from datetime import datetime
 
 app = Flask(__name__)
+mongo_uri = os.getenv("MONGO_URI", "mongodb://127.0.0.1:27017/")
+cliente = MongoClient(mongo_uri, serverSelectionTimeoutMS=3000)
+
+base_datos = cliente["tienda_tenis"]
+alumnos = base_datos["productos"]
 cliente = MongoClient("mongodb://127.0.0.1:27017/", serverSelectionTimeoutMS=3000)
 base_datos = cliente["tienda_tenis"]
 alumnos = base_datos["productos"]
