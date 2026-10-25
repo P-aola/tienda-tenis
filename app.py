@@ -76,8 +76,10 @@ def ayuda():
 
 @app.errorhandler(PyMongoError)
 def error_mongo(error):
-    return render_template("error.html", mensaje="No fue posible trabajar con MongoDB. Revisa que el servicio esté iniciado y vuelve a intentar."), 503
-
+    mensaje = "No fue posible conectar con la base de datos."
+    if request.path.startswith("/api/"):
+        return jsonify({"error": mensaje}), 503
+    return render_template("error.html", mensaje=mensaje), 503
 def producto_json(producto):
     return {
         "id": str(producto["_id"]),
