@@ -3,9 +3,8 @@
 <section>
 <h2>Editar zapas</h2>
 <p>Corrige los datos y guarda los cambios.</p>
-<form method="post"
-action="{{ url_for('editar', id=alumno._id) }}" class="registro">
-<<div class="mb-3">
+<form method="post" action="{{ url_for('editar', id=alumno._id) }}" class="registro">
+<div class="mb-3">
     <label for="nombre" class="form-label">Modelo de Tenis</label>
     <input id="nombre" name="nombre" class="form-control" value="{{ alumno.nombre }}" required maxlength="80">
 </div>
@@ -24,14 +23,8 @@ action="{{ url_for('editar', id=alumno._id) }}" class="registro">
         {% endfor %}
     </select>
 </div>
-{% if alumno.get('turno') == opcion %}selected{% endif %}>
-{{ opcion }}
-</option>
-{% endfor %}
-</select>
-</label>
-<button>Guardar cambios</button>
-<a class="boton secundario" href="{{ url_for('inicio') }}">Cancelar</a>
+<button class="boton">Guardar cambios</button>
+<a class="boton secundario" href="{{ url_for('index') }}">Cancelar</a>
 </form>
 </section>
 {% endblock %}

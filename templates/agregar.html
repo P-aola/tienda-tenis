@@ -1,77 +1,27 @@
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Agregar alumno</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
-</head>
-
-<body>
-
-    <div class="formulario">
-
-        <h1>Agregar alumno</h1>
-
-        <form method="POST">
-
-            <label>Nombre:</label>
-
-            <input type="text"
-                   name="nombre"
-                   required>
-
-
-            <label>Apellido:</label>
-
-            <input type="text"
-                   name="apellido"
-                   required>
-
-
-            <label>Edad:</label>
-
-            <input type="number"
-                   name="edad"
-                   required>
-
-
-            <label>Grupo:</label>
-
-            <input type="text"
-                   name="grupo"
-                   required>
-
-
-            <label>Correo:</label>
-
-            <input type="email"
-                   name="correo"
-                   required>
-
-
-            <button type="submit">
-                Guardar alumno
-            </button>
-
-        </form>
-
-
-        <a href="{{ url_for('index') }}"
-           class="volver">
-            ← Regresar
-        </a>
-
-    </div>
-
-</body>
-
-</html>
+{% extends 'base.html' %}
+{% block contenido %}
+<section>
+<h2>Agregar zapas</h2>
+<p>Ingresa los datos del nuevo modelo para agregarlo al catálogo.</p>
+<form method="POST" action="{{ url_for('agregar') }}" class="registro">
+<div class="mb-3">
+    <label for="nombre" class="form-label">Modelo de Tenis</label>
+    <input id="nombre" name="nombre" class="form-control" required maxlength="80" placeholder="Ejemplo: Air Force 1">
+</div>
+<div class="mb-3">
+    <label for="categoria" class="form-label">Categoría / Estilo</label>
+    <input id="categoria" name="categoria" class="form-control" required maxlength="20" placeholder="Ejemplo: Urbano">
+</div>
+<div class="mb-3">
+    <label for="estado" class="form-label">Estado</label>
+    <select id="estado" name="estado" class="form-select" required>
+        <option value="">Selecciona</option>
+        <option value="Disponible">Disponible</option>
+        <option value="Agotado">Agotado</option>
+    </select>
+</div>
+<button class="boton">Guardar producto</button>
+<a class="boton secundario" href="{{ url_for('index') }}">Cancelar</a>
+</form>
+</section>
+{% endblock %}

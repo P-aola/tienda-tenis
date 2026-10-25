@@ -23,7 +23,7 @@
 </form>
 </section>
 <section>
-<h2>Productos registrados <span class="contador">{{ alumnos|length }}</span></h2>
+<h2>Productos registrados <span class="contador">{{ productos|length }}</span></h2>
 <div class="tabla">
 <table>
 <caption>Catálogo de Tienda de Tenis</caption>
@@ -31,16 +31,16 @@
 <th>Producto</th><th>Categoría</th><th>Estado</th><th>Acciones</th>
 </tr></thead>
 <tbody>
-{% for alumno in alumnos %}
+{% for producto in productos %}
 <tr>
-<td>{{ alumno.nombre }}</td>
-<td>{{ alumno.categoria }}</td>
-<td>{{ alumno.get('estado', 'Sin asignar') }}</td>
+<td>{{ producto.nombre }}</td>
+<td>{{ producto.categoria }}</td>
+<td>{{ producto.get('estado', 'Sin asignar') }}</td>
 <td><div class="acciones">
 <a class="boton secundario"
-href="{{ url_for('editar', id=alumno._id) }}">Editar</a>
+href="{{ url_for('editar', id=producto._id) }}">Editar</a>
 <form method="post"
-action="{{ url_for('eliminar', id=alumno._id) }}"
+action="{{ url_for('eliminar', id=producto._id) }}"
 onsubmit="return confirm('¿Eliminar este producto?');">
 <button class="peligro">Eliminar</button>
 </form>
