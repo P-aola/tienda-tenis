@@ -1,12 +1,20 @@
 import os
-from pymongo import MongoClient
-from pymongo.errors import PyMongoError
 from flask import Flask, render_template, request, redirect, url_for, abort, jsonify
 from pymongo import MongoClient
+from pymongo.errors import PyMongoError
 
 app = Flask(__name__)
-mongo_uri = os.getenv("MONGO_URI", "mongodb://127.0.0.1:27017/")
-cliente = MongoClient(mongo_uri, serverSelectionTimeoutMS=3000)
+
+# Configuración segura para evitar el error de "MongoClient opened before fork"
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://127.0.0.1:27017/")
+
+def get_db():
+    cliente = MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000)
+    return cliente["tienda_tenis"]
+
+# Y cuando necesites usar la colección en tus rutas, la llamas así:
+# base_datos = get_db()
+# alumnos = base_datos["productos"]
 
 base_datos = cliente["tienda_tenis"]
 alumnos = base_datos["productos"]
@@ -40,9 +48,9 @@ def buscar_alumno(id):
     return alumno
 
 @app.route("/")
-def inicio():
-    lista = list(alumnos.find().sort("nombre", 1))
-    return render_template("index.html", alumnos=lista)
+def index():
+   productos = list(get_db()["productos"].find())
+   return render_template("index.html", productos=productos)
 
 @app.route("/agregar", methods=["POST"])
 def agregar():
