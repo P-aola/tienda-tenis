@@ -1,30 +1,44 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% block contenido %}
-<section>
-<h2>Editar zapas</h2>
-<p>Corrige los datos y guarda los cambios.</p>
-<form method="post" action="{{ url_for('editar', id=alumno._id) }}" class="registro">
-<div class="mb-3">
-    <label for="nombre" class="form-label">Modelo de Tenis</label>
-    <input id="nombre" name="nombre" class="form-control" value="{{ alumno.nombre }}" required maxlength="80">
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <h4 class="card-title fw-bold mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-pencil-square text-warning fs-3"></i> Editar Producto
+                </h4>
+                <p class="text-muted small mb-4">Modifica los detalles del tenis seleccionado.</p>
+
+                <form action="{{ url_for('editar', id=alumno._id) }}" method="POST" class="row g-3">
+                    <div class="col-12">
+                        <label for="nombre" class="form-label fw-semibold">Producto / Modelo</label>
+                        <input type="text" id="nombre" name="nombre" class="form-control rounded-3" value="{{ alumno.nombre }}" required maxlength="80">
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label for="categoria" class="form-label fw-semibold">Categoría / Estilo</label>
+                        <input type="text" id="categoria" name="categoria" class="form-control rounded-3" value="{{ alumno.categoria }}" required maxlength="20">
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label for="estado" class="form-label fw-semibold">Estado</label>
+                        <select id="estado" name="estado" class="form-select rounded-3" required>
+                            {% for opcion in ['Disponible', 'Agotado'] %}
+                            <option value="{{ opcion }}" {% if alumno.get('estado') == opcion %}selected{% endif %}>
+                                {{ opcion }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-end gap-2 mt-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-light px-4 rounded-3">Cancelar</a>
+                        <button type="submit" class="btn btn-warning text-dark fw-bold px-4 rounded-3">Guardar cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="mb-3">
-    <label for="categoria" class="form-label">Categoría / Estilo</label>
-    <input id="categoria" name="categoria" class="form-control" value="{{ alumno.categoria }}" required maxlength="20">
-</div>
-<div class="mb-3">
-    <label for="estado" class="form-label">Estado</label>
-    <select id="estado" name="estado" class="form-select" required>
-        <option value="">Selecciona</option>
-        {% for opcion in ['Disponible', 'Agotado'] %}
-        <option value="{{ opcion }}" {% if alumno.get('estado') == opcion %}selected{% endif %}>
-            {{ opcion }}
-        </option>
-        {% endfor %}
-    </select>
-</div>
-<button class="boton">Guardar cambios</button>
-<a class="boton secundario" href="{{ url_for('index') }}">Cancelar</a>
-</form>
-</section>
 {% endblock %}

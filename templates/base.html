@@ -1,24 +1,48 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SneakerZone</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SneakerZone | Catálogo Oficial</title>
+    <!-- Bootstrap 5 CSS para diseño limpio -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Iconos de Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Tus estilos personalizados -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
 </head>
-<body>
-<main>
-<p>
-<a href="{{ url_for('index') }}">Inicio</a> |
-<a href="{{ url_for('ayuda') }}">Ayuda</a>
-</p>
-<header>
-<p class="etiqueta">PRÁCTICA 05 · APLICACIONES WEB</p>
-<h1>Administra el catálogo de tenis disponibles.</h1>
-<p>Catalogo.</p>
-<link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
-</header>
-{% block contenido %}{% endblock %}
-<footer>Laboratorio de Aplicaciones Web · Datos de práctica</footer>
-</main>
+<body class="bg-light">
+
+    <!-- Barra de navegación bonita -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4 d-flex align-items-center gap-2" href="{{ url_for('index') }}">
+                <i class="bi bi-box-seam text-warning"></i> SNEAKER<span class="text-warning">ZONE</span>
+            </a>
+            <div class="d-flex gap-3">
+                <a class="btn btn-outline-light btn-sm rounded-pill px-3" href="{{ url_for('index') }}">
+                    <i class="bi bi-house-door me-1"></i> Inicio
+                </a>
+                <a class="btn btn-outline-warning btn-sm rounded-pill px-3" href="{{ url_for('ayuda') }}">
+                    <i class="bi bi-question-circle me-1"></i> Ayuda
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main class="container py-4">
+        {% block contenido %}{% endblock %}
+    </main>
+
+    <!-- Pie de página elegante -->
+    <footer class="text-center py-4 text-muted border-top bg-white mt-5">
+        <div class="container">
+            <p class="mb-0 fw-semibold">SneakerZone &copy; 2026 - Catálogo de Tenis</p>
+            <small class="text-secondary">Laboratorio de Aplicaciones Web · Práctica 05</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

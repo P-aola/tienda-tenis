@@ -1,56 +1,107 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
 {% block contenido %}
-<section>
-<h2>Agregar zapas</h2>
-<form method="post" action="{{ url_for('agregar') }}" class="registro">
-<div class="col-md-6">
-    <label for="nombre" class="form-label">Modelo de Tenis</label>
-    <input id="nombre" name="nombre" class="form-control" required maxlength="80" placeholder="Ejemplo: Air Force 1">
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="bg-white p-4 rounded-4 shadow-sm border-start border-4 border-warning">
+            <h1 class="fw-bold mb-1 fs-3">Administra el catálogo de tenis disponibles</h1>
+            <p class="text-muted mb-0">Gestiona y actualiza los modelos de tu tienda en tiempo real.</p>
+        </div>
+    </div>
 </div>
-<div class="col-md-3">
-    <label for="categoria" class="form-label">Categoría / Estilo</label>
-    <input id="categoria" name="categoria" class="form-control" required maxlength="20" placeholder="Ejemplo: Urbano">
+
+<!-- Formulario para agregar tenis -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+        <h5 class="card-title fw-bold mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-plus-circle-fill text-warning fs-4"></i> Agregar zapas
+        </h5>
+        
+        <form action="{{ url_for('agregar') }}" method="POST" class="row g-3">
+            <div class="col-md-5">
+                <label for="nombre" class="form-label fw-semibold">Modelo de Tenis</label>
+                <input type="text" id="nombre" name="nombre" class="form-control rounded-3" placeholder="Ejemplo: Air Force 1" required maxlength="80">
+            </div>
+            <div class="col-md-4">
+                <label for="categoria" class="form-label fw-semibold">Categoría / Estilo</label>
+                <input type="text" id="categoria" name="categoria" class="form-control rounded-3" placeholder="Ejemplo: Urbano" required maxlength="20">
+            </div>
+            <div class="col-md-3">
+                <label for="estado" class="form-label fw-semibold">Estado</label>
+                <select id="estado" name="estado" class="form-select rounded-3" required>
+                    <option value="" disabled selected>Selecciona...</option>
+                    <option value="Disponible">Disponible</option>
+                    <option value="Agotado">Agotado</option>
+                </select>
+            </div>
+            <div class="col-12 text-end mt-3">
+                <button type="submit" class="btn btn-dark px-4 rounded-3 fw-semibold">
+                    <i class="bi bi-check-lg me-1"></i> Guardar producto
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
-<div class="col-md-3">
-    <label for="estado" class="form-label">Estado</label>
-    <select id="estado" name="estado" class="form-select" required>
-        <option value="">Selecciona</option>
-        <option value="Disponible">Disponible</option>
-        <option value="Agotado">Agotado</option>
-    </select>
+
+<!-- Tabla de productos registrados -->
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="card-title fw-bold mb-0 d-flex align-items-center gap-2">
+                <i class="bi bi-tag-fill text-dark"></i> Productos registrados
+                <span class="badge bg-warning text-dark rounded-pill">{{ productos|length }}</span>
+            </h5>
+            <small class="text-muted">Catálogo de Tienda de Tenis</small>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col" class="py-3">Producto</th>
+                        <th scope="col" class="py-3">Categoría</th>
+                        <th scope="col" class="py-3">Estado</th>
+                        <th scope="col" class="py-3 text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in productos %}
+                    <tr>
+                        <td class="fw-bold text-dark">{{ p.nombre }}</td>
+                        <td><span class="badge bg-light text-dark border">{{ p.categoria }}</span></td>
+                        <td>
+                            {% if p.estado == 'Disponible' %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">
+                                    <i class="bi bi-check-circle-fill me-1"></i> {{ p.estado }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3">
+                                    <i class="bi bi-x-circle-fill me-1"></i> {{ p.estado }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ url_for('editar', id=p._id) }}" class="btn btn-sm btn-outline-primary rounded-2 me-1">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            <form action="{{ url_for('eliminar', id=p._id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar este producto?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-2">
+                                    <i class="bi bi-trash"></i> Eliminar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            Todavía no hay productos registrados. ¡Agrega el primero arriba!
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-<button class="boton">Guardar producto</button>
-</form>
-</section>
-<section>
-<h2>Productos registrados <span class="contador">{{ productos|length }}</span></h2>
-<div class="tabla">
-<table>
-<caption>Catálogo de Tienda de Tenis</caption>
-<thead><tr>
-<th>Producto</th><th>Categoría</th><th>Estado</th><th>Acciones</th>
-</tr></thead>
-<tbody>
-{% for producto in productos %}
-<tr>
-<td>{{ producto.nombre }}</td>
-<td>{{ producto.categoria }}</td>
-<td>{{ producto.get('estado', 'Sin asignar') }}</td>
-<td><div class="acciones">
-<a class="boton secundario"
-href="{{ url_for('editar', id=producto._id) }}">Editar</a>
-<form method="post"
-action="{{ url_for('eliminar', id=producto._id) }}"
-onsubmit="return confirm('¿Eliminar este producto?');">
-<button class="peligro">Eliminar</button>
-</form>
-</div></td>
-</tr>
-{% else %}
-<tr><td colspan="4">Todavía no hay productos. Agrega el primero.</td></tr>
-{% endfor %}
-</tbody>
-</table>
-</div>
-</section>
 {% endblock %}
