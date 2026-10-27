@@ -1,107 +1,882 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SneakerZone | Dashboard de Inventario & API</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                            accent: '#ff3366',
+                        },
+                        darkbg: '#0b0f17',
+                        darkcard: '#131926',
+                        darkborder: '#1f293d'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f17;
+            color: #f3f4f6;
+        }
+        .glass-panel {
+            background: rgba(19, 25, 38, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0b0f17;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1f293d;
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #4f46e5;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between custom-scrollbar selection:bg-brand-accent selection:text-white">
 
-{% block contenido %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="bg-white p-4 rounded-4 shadow-sm border-start border-4 border-warning">
-            <h1 class="fw-bold mb-1 fs-3">Administra el catálogo de tenis disponibles</h1>
-            <p class="text-muted mb-0">Gestiona y actualiza los modelos de tu tienda en tiempo real.</p>
+    <!-- TOP NAVIGATION HEADER -->
+    <header class="sticky top-0 z-40 glass-panel border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand Logo & Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="h-11 w-11 rounded-xl bg-gradient-to-tr from-brand-accent to-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/30">
+                        <i class="fa-solid font-bold fa-shoe-prints text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                            SNEAKER<span class="text-brand-accent">ZONE</span>
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20">v2.4 CRUD</span>
+                        </h1>
+                        <p class="text-xs text-gray-400">Catálogo & Administrador REST API</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="hidden md:flex items-center space-x-2 bg-darkcard/80 p-1.5 rounded-xl border border-gray-800">
+                    <button id="nav-catalog-btn" onclick="switchTab('catalog')" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-600 text-white shadow-sm flex items-center gap-2">
+                        <i class="fa-solid fa-grid-2"></i> Catálogo
+                    </button>
+                    <button id="nav-table-btn" onclick="switchTab('table')" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800/50 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check"></i> Tabla Inventario
+                    </button>
+                    <button id="nav-api-btn" onclick="switchTab('api')" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800/50 flex items-center gap-2">
+                        <i class="fa-solid fa-code text-brand-accent"></i> Probador API REST
+                    </button>
+                </nav>
+
+                <!-- Action Button -->
+                <div class="flex items-center space-x-3">
+                    <button onclick="openModal('create')" class="bg-gradient-to-r from-brand-600 to-brand-accent hover:from-brand-500 hover:to-brand-accent text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 shadow-lg shadow-brand-accent/20 flex items-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>Nuevo Tenis</span>
+                    </button>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-<!-- Formulario para agregar tenis -->
-<div class="card border-0 shadow-sm rounded-4 mb-4">
-    <div class="card-body p-4">
-        <h5 class="card-title fw-bold mb-3 d-flex align-items-center gap-2">
-            <i class="bi bi-plus-circle-fill text-warning fs-4"></i> Agregar zapas
-        </h5>
-        
-        <form action="{{ url_for('agregar') }}" method="POST" class="row g-3">
-            <div class="col-md-5">
-                <label for="nombre" class="form-label fw-semibold">Modelo de Tenis</label>
-                <input type="text" id="nombre" name="nombre" class="form-control rounded-3" placeholder="Ejemplo: Air Force 1" required maxlength="80">
+        <!-- Mobile Navigation bar -->
+        <div class="md:hidden flex justify-around border-t border-gray-800 py-2 bg-darkbg/95">
+            <button onclick="switchTab('catalog')" class="text-xs text-white font-medium flex flex-col items-center gap-1">
+                <i class="fa-solid fa-grid-2 text-base text-brand-400"></i> Catálogo
+            </button>
+            <button onclick="switchTab('table')" class="text-xs text-gray-400 font-medium flex flex-col items-center gap-1">
+                <i class="fa-solid fa-list text-base"></i> Inventario
+            </button>
+            <button onclick="switchTab('api')" class="text-xs text-gray-400 font-medium flex flex-col items-center gap-1">
+                <i class="fa-solid fa-code text-base text-brand-accent"></i> API REST
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+
+        <!-- DASHBOARD STATS BAR -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="glass-panel p-5 rounded-2xl flex items-center justify-between border border-gray-800/80">
+                <div>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Productos</p>
+                    <p id="stat-total" class="text-2xl font-extrabold text-white mt-1">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl border border-blue-500/20">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
             </div>
-            <div class="col-md-4">
-                <label for="categoria" class="form-label fw-semibold">Categoría / Estilo</label>
-                <input type="text" id="categoria" name="categoria" class="form-control rounded-3" placeholder="Ejemplo: Urbano" required maxlength="20">
+            <div class="glass-panel p-5 rounded-2xl flex items-center justify-between border border-gray-800/80">
+                <div>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Disponibles</p>
+                    <p id="stat-disponibles" class="text-2xl font-extrabold text-emerald-400 mt-1">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl border border-emerald-500/20">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
             </div>
-            <div class="col-md-3">
-                <label for="estado" class="form-label fw-semibold">Estado</label>
-                <select id="estado" name="estado" class="form-select rounded-3" required>
-                    <option value="" disabled selected>Selecciona...</option>
-                    <option value="Disponible">Disponible</option>
-                    <option value="Agotado">Agotado</option>
-                </select>
+            <div class="glass-panel p-5 rounded-2xl flex items-center justify-between border border-gray-800/80">
+                <div>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Agotados</p>
+                    <p id="stat-agotados" class="text-2xl font-extrabold text-rose-400 mt-1">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center text-xl border border-rose-500/20">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
             </div>
-            <div class="col-12 text-end mt-3">
-                <button type="submit" class="btn btn-dark px-4 rounded-3 fw-semibold">
-                    <i class="bi bi-check-lg me-1"></i> Guardar producto
+            <div class="glass-panel p-5 rounded-2xl flex items-center justify-between border border-gray-800/80">
+                <div>
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Categorías</p>
+                    <p id="stat-categorias" class="text-2xl font-extrabold text-brand-400 mt-1">0</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center text-xl border border-brand-500/20">
+                    <i class="fa-solid fa-tags"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEARCH & FILTER TOOLBAR -->
+        <section class="glass-panel p-4 rounded-2xl mb-8 flex flex-col md:flex-row items-center justify-between gap-4 border border-gray-800">
+            <!-- Search Bar -->
+            <div class="relative w-full md:w-96">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                <input type="text" id="search-input" oninput="applyFilters()" placeholder="Buscar tenis por nombre..." class="w-full bg-darkbg border border-gray-700/80 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
+            </div>
+
+            <!-- Filter Options -->
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <!-- Category Filter -->
+                <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <span class="text-xs font-medium text-gray-400 hidden sm:inline">Categoría:</span>
+                    <select id="filter-category" onchange="applyFilters()" class="w-full sm:w-auto bg-darkbg border border-gray-700/80 text-gray-300 text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
+                        <option value="ALL">Todas las categorías</option>
+                        <option value="Urbano">Urbano</option>
+                        <option value="Deportivo">Deportivo</option>
+                        <option value="Running">Running</option>
+                        <option value="Basketball">Basketball</option>
+                        <option value="Casual">Casual</option>
+                    </select>
+                </div>
+
+                <!-- State Filter -->
+                <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <span class="text-xs font-medium text-gray-400 hidden sm:inline">Estado:</span>
+                    <select id="filter-status" onchange="applyFilters()" class="w-full sm:w-auto bg-darkbg border border-gray-700/80 text-gray-300 text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
+                        <option value="ALL">Todos los estados</option>
+                        <option value="Disponible">Disponible</option>
+                        <option value="Agotado">Agotado</option>
+                    </select>
+                </div>
+
+                <!-- Reset Filters Button -->
+                <button onclick="resetFilters()" class="p-2.5 rounded-xl border border-gray-700/80 text-gray-400 hover:text-white hover:bg-gray-800 transition-all text-sm" title="Restablecer Filtros">
+                    <i class="fa-solid fa-rotate-right"></i>
                 </button>
             </div>
-        </form>
-    </div>
-</div>
+        </section>
 
-<!-- Tabla de productos registrados -->
-<div class="card border-0 shadow-sm rounded-4">
-    <div class="card-body p-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title fw-bold mb-0 d-flex align-items-center gap-2">
-                <i class="bi bi-tag-fill text-dark"></i> Productos registrados
-                <span class="badge bg-warning text-dark rounded-pill">{{ productos|length }}</span>
-            </h5>
-            <small class="text-muted">Catálogo de Tienda de Tenis</small>
+        <!-- VIEW 1: CATALOG GRID VIEW -->
+        <section id="view-catalog" class="space-y-6">
+            <div id="catalog-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Dynamic Shoe Cards populated by JS -->
+            </div>
+            <div id="catalog-empty" class="hidden text-center py-16 glass-panel rounded-2xl border border-gray-800">
+                <i class="fa-solid fa-box-open text-5xl text-gray-600 mb-4"></i>
+                <h3 class="text-lg font-semibold text-gray-300">No se encontraron productos</h3>
+                <p class="text-sm text-gray-500 mt-1">Intenta ajustando los filtros de búsqueda o agrega un nuevo tenis.</p>
+            </div>
+        </section>
+
+        <!-- VIEW 2: TABLE INVENTORY VIEW -->
+        <section id="view-table" class="hidden glass-panel rounded-2xl border border-gray-800 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm text-gray-400">
+                    <thead class="bg-gray-900/80 text-xs font-semibold uppercase tracking-wider text-gray-400 border-b border-gray-800">
+                        <tr>
+                            <th class="px-6 py-4">ID</th>
+                            <th class="px-6 py-4">Modelo / Nombre</th>
+                            <th class="px-6 py-4">Categoría</th>
+                            <th class="px-6 py-4">Estado</th>
+                            <th class="px-6 py-4 text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body" class="divide-y divide-gray-800/60">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="table-empty" class="hidden text-center py-12">
+                <p class="text-gray-500 text-sm">No existen registros que coincidan con la búsqueda.</p>
+            </div>
+        </section>
+
+        <!-- VIEW 3: REST API TESTER & SIMULATOR -->
+        <section id="view-api" class="hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-gray-800">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-800">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-terminal text-brand-400"></i> Consola interactiva de API REST
+                        </h2>
+                        <p class="text-xs text-gray-400 mt-0.5">Simula peticiones HTTP directas al endpoint <code class="bg-gray-800 text-brand-accent px-1.5 py-0.5 rounded text-xs">/api/productos</code></p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Endpoint Activo
+                        </span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+                    <!-- Left: API Controls -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Método HTTP</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button onclick="setApiMethod('GET')" id="btn-method-get" class="py-2 px-3 rounded-lg text-xs font-bold border transition-all bg-emerald-500/20 border-emerald-500 text-emerald-400">GET</button>
+                                <button onclick="setApiMethod('POST')" id="btn-method-post" class="py-2 px-3 rounded-lg text-xs font-bold border border-gray-800 text-gray-400 hover:text-white">POST</button>
+                                <button onclick="setApiMethod('PUT')" id="btn-method-put" class="py-2 px-3 rounded-lg text-xs font-bold border border-gray-800 text-gray-400 hover:text-white">PUT</button>
+                                <button onclick="setApiMethod('DELETE')" id="btn-method-delete" class="py-2 px-3 rounded-lg text-xs font-bold border border-gray-800 text-gray-400 hover:text-white">DELETE</button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">URL Endpoint</label>
+                            <div class="flex">
+                                <span class="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-gray-700 bg-gray-900 text-gray-400 text-xs font-mono">
+                                    /api/productos
+                                </span>
+                                <input type="text" id="api-endpoint-param" placeholder="opcional: /:id" class="w-full bg-darkbg border border-gray-700 rounded-r-xl px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-brand-500">
+                            </div>
+                        </div>
+
+                        <div id="api-request-body-container" class="hidden">
+                            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Cuerpo de la Petición (JSON Payload)</label>
+                            <textarea id="api-request-body" rows="6" class="w-full bg-darkbg border border-gray-700 rounded-xl p-3 text-xs text-brand-300 font-mono focus:outline-none focus:border-brand-500 custom-scrollbar" placeholder='{\n  "nombre": "Air Jordan 1 High",\n  "categoria": "Basketball",\n  "estado": "Disponible"\n}'></textarea>
+                        </div>
+
+                        <button onclick="executeApiCall()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-xl text-sm transition-all shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Enviar Petición
+                        </button>
+                    </div>
+
+                    <!-- Right: JSON Response Console -->
+                    <div class="lg:col-span-7 flex flex-col">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Respuesta JSON (HTTP Response)</label>
+                            <span id="api-status-badge" class="text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">200 OK</span>
+                        </div>
+                        <div class="flex-grow bg-black/90 border border-gray-800 rounded-xl p-4 font-mono text-xs overflow-x-auto custom-scrollbar relative min-h-[260px]">
+                            <button onclick="copyApiResponse()" class="absolute top-3 right-3 bg-gray-800 hover:bg-gray-700 text-gray-300 px-2.5 py-1 rounded text-xs transition-all flex items-center gap-1">
+                                <i class="fa-regular fa-copy"></i> Copiar
+                            </button>
+                            <pre id="api-response-output" class="text-emerald-400">// Haz clic en "Enviar Petición" para probar la respuesta JSON</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-gray-800/80 bg-darkbg py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
+            <p>© 2026 <span class="text-gray-300 font-semibold">SneakerZone</span>. Sistema de Administración & API REST.</p>
+            <div class="flex items-center space-x-4">
+                <span class="hover:text-gray-300">Base de datos: <code class="text-brand-400 font-mono">tienda_tenis</code></span>
+                <span>•</span>
+                <span class="hover:text-gray-300">Colección: <code class="text-brand-400 font-mono">productos</code></span>
+            </div>
         </div>
+    </footer>
 
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col" class="py-3">Producto</th>
-                        <th scope="col" class="py-3">Categoría</th>
-                        <th scope="col" class="py-3">Estado</th>
-                        <th scope="col" class="py-3 text-end">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in productos %}
-                    <tr>
-                        <td class="fw-bold text-dark">{{ p.nombre }}</td>
-                        <td><span class="badge bg-light text-dark border">{{ p.categoria }}</span></td>
-                        <td>
-                            {% if p.estado == 'Disponible' %}
-                                <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3">
-                                    <i class="bi bi-check-circle-fill me-1"></i> {{ p.estado }}
-                                </span>
-                            {% else %}
-                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill px-3">
-                                    <i class="bi bi-x-circle-fill me-1"></i> {{ p.estado }}
-                                </span>
-                            {% endif %}
-                        </td>
-                        <td class="text-end">
-                            <a href="{{ url_for('editar', id=p._id) }}" class="btn btn-sm btn-outline-primary rounded-2 me-1">
-                                <i class="bi bi-pencil"></i> Editar
-                            </a>
-                            <form action="{{ url_for('eliminar', id=p._id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar este producto?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-2">
-                                    <i class="bi bi-trash"></i> Eliminar
+    <!-- MODAL FOR CREATE / EDIT PRODUCT -->
+    <div id="product-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="glass-panel w-full max-w-lg rounded-2xl border border-gray-700 shadow-2xl overflow-hidden transform transition-all animate-fade-in">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between bg-darkcard">
+                <h3 id="modal-title" class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-shoe-prints text-brand-accent"></i> Agregar Nuevo Tenis
+                </h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form -->
+            <form id="product-form" onsubmit="handleFormSubmit(event)" class="p-6 space-y-5">
+                <input type="hidden" id="form-id">
+
+                <!-- Field: nombre -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+                        Nombre / Modelo <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" id="form-nombre" required placeholder="ej. Nike Air Force 1 '07" class="w-full bg-darkbg border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
+                </div>
+
+                <!-- Field: categoria -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+                        Categoría <span class="text-rose-500">*</span>
+                    </label>
+                    <select id="form-categoria" required class="w-full bg-darkbg border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all">
+                        <option value="" disabled selected>Selecciona una categoría</option>
+                        <option value="Urbano">Urbano</option>
+                        <option value="Deportivo">Deportivo</option>
+                        <option value="Running">Running</option>
+                        <option value="Basketball">Basketball</option>
+                        <option value="Casual">Casual</option>
+                    </select>
+                </div>
+
+                <!-- Field: estado -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+                        Estado de Inventario <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer border border-gray-700 rounded-xl p-3 flex items-center justify-between hover:border-emerald-500/50 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-500/10 transition-all">
+                            <span class="flex items-center gap-2 text-sm text-gray-200">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> Disponible
+                            </span>
+                            <input type="radio" name="form-estado" value="Disponible" checked class="accent-emerald-500">
+                        </label>
+                        <label class="cursor-pointer border border-gray-700 rounded-xl p-3 flex items-center justify-between hover:border-rose-500/50 has-[:checked]:border-rose-500 has-[:checked]:bg-rose-500/10 transition-all">
+                            <span class="flex items-center gap-2 text-sm text-gray-200">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span> Agotado
+                            </span>
+                            <input type="radio" name="form-estado" value="Agotado" class="accent-rose-500">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Form Footer Actions -->
+                <div class="pt-4 border-t border-gray-800 flex items-center justify-end space-x-3">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl border border-gray-700 text-gray-300 hover:bg-gray-800 text-sm font-medium transition-all">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-brand-accent hover:from-brand-500 hover:to-brand-accent text-white text-sm font-semibold transition-all shadow-lg shadow-brand-500/30">
+                        Guardar Registro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CONFIRMATION MODAL FOR DELETE -->
+    <div id="delete-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="glass-panel w-full max-w-md rounded-2xl border border-gray-700 p-6 shadow-2xl text-center space-y-4">
+            <div class="w-14 h-14 rounded-full bg-rose-500/10 text-rose-500 mx-auto flex items-center justify-center text-2xl border border-rose-500/20">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-white">¿Eliminar producto?</h3>
+                <p class="text-xs text-gray-400 mt-1">Esta acción no se puede deshacer. El registro se removerá de la base de datos.</p>
+            </div>
+            <div class="flex items-center justify-center space-x-3 pt-2">
+                <button onclick="closeDeleteModal()" class="px-4 py-2 rounded-xl border border-gray-700 text-gray-300 text-sm hover:bg-gray-800 transition-all">Cancelar</button>
+                <button id="confirm-delete-btn" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold transition-all shadow-lg shadow-rose-600/30">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        // Initial Mock Sneakers Dataset
+        let products = [
+            { id: "650f1a9b8c1a", nombre: "Nike Air Force 1 '07", categoria: "Urbano", estado: "Disponible" },
+            { id: "650f1a9b8c1b", nombre: "Air Jordan 4 Retro Fire Red", categoria: "Basketball", estado: "Disponible" },
+            { id: "650f1a9b8c1c", nombre: "Adidas Samba OG White", categoria: "Casual", estado: "Disponible" },
+            { id: "650f1a9b8c1d", nombre: "Nike Pegasus 40 Gore-Tex", categoria: "Running", estado: "Agotado" },
+            { id: "650f1a9b8c1e", nombre: "Puma MB.02 Rick & Morty", categoria: "Basketball", estado: "Disponible" },
+            { id: "650f1a9b8c1f", nombre: "New Balance 550 Vintage", categoria: "Urbano", estado: "Agotado" },
+            { id: "650f1a9b8c20", nombre: "Under Armour Curry Flow 10", categoria: "Deportivo", estado: "Disponible" }
+        ];
+
+        let deleteTargetId = null;
+        let currentApiMethod = 'GET';
+
+        // Gradient mappings for card conceptual art
+        const categoryGradients = {
+            'Urbano': 'from-indigo-600/40 via-purple-600/20 to-transparent',
+            'Deportivo': 'from-blue-600/40 via-cyan-600/20 to-transparent',
+            'Running': 'from-amber-600/40 via-orange-600/20 to-transparent',
+            'Basketball': 'from-rose-600/40 via-red-600/20 to-transparent',
+            'Casual': 'from-emerald-600/40 via-teal-600/20 to-transparent'
+        };
+
+        // Initialize application
+        window.onload = function() {
+            renderAll();
+            setApiMethod('GET');
+        };
+
+        // Master render call
+        function renderAll() {
+            const filtered = getFilteredProducts();
+            renderStats();
+            renderCatalogGrid(filtered);
+            renderInventoryTable(filtered);
+        }
+
+        // Filtering logic
+        function getFilteredProducts() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+            const categoryTerm = document.getElementById('filter-category').value;
+            const statusTerm = document.getElementById('filter-status').value;
+
+            return products.filter(item => {
+                const matchesSearch = item.nombre.toLowerCase().includes(searchTerm);
+                const matchesCategory = categoryTerm === 'ALL' || item.categoria === categoryTerm;
+                const matchesStatus = statusTerm === 'ALL' || item.estado === statusTerm;
+                return matchesSearch && matchesCategory && matchesStatus;
+            });
+        }
+
+        function applyFilters() {
+            renderAll();
+        }
+
+        function resetFilters() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('filter-category').value = 'ALL';
+            document.getElementById('filter-status').value = 'ALL';
+            renderAll();
+        }
+
+        // Render Top Statistics
+        function renderStats() {
+            document.getElementById('stat-total').innerText = products.length;
+            document.getElementById('stat-disponibles').innerText = products.filter(p => p.estado === 'Disponible').length;
+            document.getElementById('stat-agotados').innerText = products.filter(p => p.estado === 'Agotado').length;
+            
+            const uniqueCats = new Set(products.map(p => p.categoria)).size;
+            document.getElementById('stat-categorias').innerText = uniqueCats;
+        }
+
+        // Render Catalog Grid View
+        function renderCatalogGrid(items) {
+            const grid = document.getElementById('catalog-grid');
+            const emptyState = document.getElementById('catalog-empty');
+
+            grid.innerHTML = '';
+
+            if (items.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            items.forEach(product => {
+                const gradient = categoryGradients[product.categoria] || 'from-gray-700/40 to-transparent';
+                const isAvailable = product.estado === 'Disponible';
+                const badgeClass = isAvailable 
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
+                    : 'bg-rose-500/10 text-rose-400 border-rose-500/30';
+                
+                const cardHtml = `
+                    <div class="glass-panel rounded-2xl border border-gray-800 hover:border-brand-500/50 transition-all duration-300 flex flex-col justify-between overflow-hidden group">
+                        <!-- Top Conceptual Graphic Banner -->
+                        <div class="h-36 bg-gradient-to-b ${gradient} relative flex items-center justify-center overflow-hidden">
+                            <i class="fa-solid fa-shoe-prints text-6xl text-white/10 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500"></i>
+                            
+                            <!-- Category Badge -->
+                            <span class="absolute top-3 left-3 bg-darkcard/90 text-gray-300 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full border border-gray-700">
+                                ${product.categoria}
+                            </span>
+
+                            <!-- Status Badge -->
+                            <span class="absolute top-3 right-3 text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${badgeClass} flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full ${isAvailable ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
+                                ${product.estado}
+                            </span>
+                        </div>
+
+                        <!-- Product Content -->
+                        <div class="p-5 flex-grow flex flex-col justify-between space-y-4">
+                            <div>
+                                <h4 class="text-base font-bold text-white group-hover:text-brand-400 transition-colors line-clamp-1">${escapeHtml(product.nombre)}</h4>
+                                <p class="text-xs font-mono text-gray-500 mt-1">ID: ${product.id}</p>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="pt-3 border-t border-gray-800/80 flex items-center justify-end space-x-2">
+                                <button onclick="openModal('edit', '${product.id}')" class="p-2 rounded-lg bg-gray-800/80 text-gray-300 hover:text-white hover:bg-brand-600 transition-all text-xs" title="Editar">
+                                    <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
-                            </form>
+                                <button onclick="openDeleteModal('${product.id}')" class="p-2 rounded-lg bg-gray-800/80 text-gray-300 hover:text-rose-400 hover:bg-rose-500/20 transition-all text-xs" title="Eliminar">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        // Render Inventory Table View
+        function renderInventoryTable(items) {
+            const tbody = document.getElementById('inventory-table-body');
+            const emptyState = document.getElementById('table-empty');
+
+            tbody.innerHTML = '';
+
+            if (items.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            items.forEach(product => {
+                const isAvailable = product.estado === 'Disponible';
+                const badgeClass = isAvailable 
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' 
+                    : 'bg-rose-500/10 text-rose-400 border-rose-500/30';
+
+                const rowHtml = `
+                    <tr class="hover:bg-gray-800/40 transition-colors">
+                        <td class="px-6 py-4 font-mono text-xs text-gray-500">${product.id}</td>
+                        <td class="px-6 py-4 font-bold text-white">${escapeHtml(product.nombre)}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-1 rounded-md text-xs bg-gray-800 text-gray-300 border border-gray-700">
+                                ${product.categoria}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-medium border ${badgeClass} inline-flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full ${isAvailable ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
+                                ${product.estado}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right space-x-2">
+                            <button onclick="openModal('edit', '${product.id}')" class="text-xs px-2.5 py-1.5 rounded-lg bg-gray-800 text-gray-300 hover:text-white hover:bg-brand-600 transition-all">
+                                <i class="fa-solid fa-pen-to-square"></i> Editar
+                            </button>
+                            <button onclick="openDeleteModal('${product.id}')" class="text-xs px-2.5 py-1.5 rounded-lg bg-gray-800 text-gray-300 hover:text-rose-400 hover:bg-rose-500/20 transition-all">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="4" class="text-center py-4 text-muted">
-                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-                            Todavía no hay productos registrados. ¡Agrega el primero arriba!
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-{% endblock %}
+                `;
+                tbody.insertAdjacentHTML('beforeend', rowHtml);
+            });
+        }
+
+        // Navigation Switcher
+        function switchTab(tabName) {
+            document.getElementById('view-catalog').classList.add('hidden');
+            document.getElementById('view-table').classList.add('hidden');
+            document.getElementById('view-api').classList.add('hidden');
+
+            document.getElementById('nav-catalog-btn').className = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800/50 flex items-center gap-2";
+            document.getElementById('nav-table-btn').className = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800/50 flex items-center gap-2";
+            document.getElementById('nav-api-btn').className = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 text-gray-400 hover:text-white hover:bg-gray-800/50 flex items-center gap-2";
+
+            if (tabName === 'catalog') {
+                document.getElementById('view-catalog').classList.remove('hidden');
+                document.getElementById('nav-catalog-btn').className = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-600 text-white shadow-sm flex items-center gap-2";
+            } else if (tabName === 'table') {
+                document.getElementById('view-table').classList.remove('hidden');
+                document.getElementById('nav-table-btn').className = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-600 text-white shadow-sm flex items-center gap-2";
+            } else if (tabName === 'api') {
+                document.getElementById('view-api').classList.remove('hidden');
+                document.getElementById('nav-api-btn').className = "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-brand-600 text-white shadow-sm flex items-center gap-2";
+                executeApiCall(); // Auto-run GET on tab load
+            }
+        }
+
+        // Modal Handlers (Create & Edit)
+        function openModal(mode, id = null) {
+            const modal = document.getElementById('product-modal');
+            const title = document.getElementById('modal-title');
+            const form = document.getElementById('product-form');
+
+            form.reset();
+
+            if (mode === 'create') {
+                document.getElementById('form-id').value = '';
+                title.innerHTML = `<i class="fa-solid fa-plus text-brand-accent"></i> Agregar Nuevo Tenis`;
+            } else if (mode === 'edit' && id) {
+                const product = products.find(p => p.id === id);
+                if (product) {
+                    document.getElementById('form-id').value = product.id;
+                    document.getElementById('form-nombre').value = product.nombre;
+                    document.getElementById('form-categoria').value = product.categoria;
+                    
+                    const radios = document.getElementsByName('form-estado');
+                    for (let r of radios) {
+                        if (r.value === product.estado) r.checked = true;
+                    }
+                    title.innerHTML = `<i class="fa-solid fa-pen-to-square text-brand-accent"></i> Editar Registro (${product.id})`;
+                }
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('product-modal').classList.add('hidden');
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const id = document.getElementById('form-id').value;
+            const nombre = document.getElementById('form-nombre').value.trim();
+            const categoria = document.getElementById('form-categoria').value;
+            const estado = document.querySelector('input[name="form-estado"]:checked').value;
+
+            if (!nombre || !categoria || !estado) {
+                showToast('Por favor completa todos los campos requeridos', 'error');
+                return;
+            }
+
+            if (id) {
+                // Update existing
+                const index = products.findIndex(p => p.id === id);
+                if (index !== -1) {
+                    products[index] = { id, nombre, categoria, estado };
+                    showToast('Producto actualizado correctamente');
+                }
+            } else {
+                // Create new
+                const newId = '650f' + Math.random().toString(16).substr(2, 8);
+                products.unshift({ id: newId, nombre, categoria, estado });
+                showToast('Tenis agregado con éxito al catálogo');
+            }
+
+            closeModal();
+            renderAll();
+        }
+
+        // Delete Modal Handlers
+        function openDeleteModal(id) {
+            deleteTargetId = id;
+            document.getElementById('delete-modal').classList.remove('hidden');
+            document.getElementById('confirm-delete-btn').onclick = () => confirmDelete();
+        }
+
+        function closeDeleteModal() {
+            deleteTargetId = null;
+            document.getElementById('delete-modal').classList.add('hidden');
+        }
+
+        function confirmDelete() {
+            if (deleteTargetId) {
+                products = products.filter(p => p.id !== deleteTargetId);
+                showToast('Registro eliminado del inventario', 'info');
+                closeDeleteModal();
+                renderAll();
+            }
+        }
+
+        // REST API Interactive Console Logic
+        function setApiMethod(method) {
+            currentApiMethod = method;
+            const methods = ['get', 'post', 'put', 'delete'];
+            
+            methods.forEach(m => {
+                const btn = document.getElementById(`btn-method-${m}`);
+                if (m === method.toLowerCase()) {
+                    let colorClass = 'bg-emerald-500/20 border-emerald-500 text-emerald-400';
+                    if (method === 'POST') colorClass = 'bg-blue-500/20 border-blue-500 text-blue-400';
+                    if (method === 'PUT') colorClass = 'bg-amber-500/20 border-amber-500 text-amber-400';
+                    if (method === 'DELETE') colorClass = 'bg-rose-500/20 border-rose-500 text-rose-400';
+                    
+                    btn.className = `py-2 px-3 rounded-lg text-xs font-bold border transition-all ${colorClass}`;
+                } else {
+                    btn.className = 'py-2 px-3 rounded-lg text-xs font-bold border border-gray-800 text-gray-400 hover:text-white';
+                }
+            });
+
+            const bodyContainer = document.getElementById('api-request-body-container');
+            const paramInput = document.getElementById('api-endpoint-param');
+
+            if (method === 'POST' || method === 'PUT') {
+                bodyContainer.classList.remove('hidden');
+            } else {
+                bodyContainer.classList.add('hidden');
+            }
+
+            if (method === 'PUT' || method === 'DELETE') {
+                paramInput.value = products.length > 0 ? `/${products[0].id}` : '/650f1a9b8c1a';
+            } else {
+                paramInput.value = '';
+            }
+        }
+
+        function executeApiCall() {
+            const param = document.getElementById('api-endpoint-param').value.trim();
+            const output = document.getElementById('api-response-output');
+            const statusBadge = document.getElementById('api-status-badge');
+
+            let responseData = {};
+            let statusCode = 200;
+            let statusText = "200 OK";
+
+            if (currentApiMethod === 'GET') {
+                if (param && param !== '/') {
+                    const cleanId = param.replace('/', '');
+                    const found = products.find(p => p.id === cleanId);
+                    if (found) {
+                        responseData = found;
+                    } else {
+                        statusCode = 404;
+                        statusText = "404 Not Found";
+                        responseData = { error: "Producto no encontrado", id: cleanId };
+                    }
+                } else {
+                    responseData = products;
+                }
+            } else if (currentApiMethod === 'POST') {
+                try {
+                    const rawBody = document.getElementById('api-request-body').value;
+                    const parsed = rawBody ? JSON.parse(rawBody) : { nombre: "Air Jordan 1 High", categoria: "Basketball", estado: "Disponible" };
+                    
+                    if (!parsed.nombre || !parsed.categoria || !parsed.estado) {
+                        statusCode = 400;
+                        statusText = "400 Bad Request";
+                        responseData = { error: "Campos requeridos faltantes: nombre, categoria, estado" };
+                    } else {
+                        statusCode = 201;
+                        statusText = "201 Created";
+                        const newId = '650f' + Math.random().toString(16).substr(2, 8);
+                        const newObj = { id: newId, ...parsed };
+                        products.unshift(newObj);
+                        renderAll();
+                        responseData = { mensaje: "Producto registrado con éxito", producto: newObj };
+                    }
+                } catch (e) {
+                    statusCode = 400;
+                    statusText = "400 Bad Request";
+                    responseData = { error: "JSON inválido en el cuerpo de la petición" };
+                }
+            } else if (currentApiMethod === 'PUT') {
+                const cleanId = param.replace('/', '');
+                const index = products.findIndex(p => p.id === cleanId);
+                if (index !== -1) {
+                    try {
+                        const rawBody = document.getElementById('api-request-body').value;
+                        const parsed = rawBody ? JSON.parse(rawBody) : { nombre: products[index].nombre + " (Editado)", categoria: products[index].categoria, estado: "Agotado" };
+                        products[index] = { ...products[index], ...parsed };
+                        renderAll();
+                        responseData = { mensaje: "Producto actualizado", producto: products[index] };
+                    } catch (e) {
+                        statusCode = 400;
+                        statusText = "400 Bad Request";
+                        responseData = { error: "JSON inválido" };
+                    }
+                } else {
+                    statusCode = 404;
+                    statusText = "404 Not Found";
+                    responseData = { error: "No se encontró el producto para actualizar", id: cleanId };
+                }
+            } else if (currentApiMethod === 'DELETE') {
+                const cleanId = param.replace('/', '');
+                const index = products.findIndex(p => p.id === cleanId);
+                if (index !== -1) {
+                    const deleted = products.splice(index, 1)[0];
+                    renderAll();
+                    responseData = { mensaje: "Producto eliminado correctamente", id: cleanId };
+                } else {
+                    statusCode = 404;
+                    statusText = "404 Not Found";
+                    responseData = { error: "Identificador no válido o producto inexistente", id: cleanId };
+                }
+            }
+
+            // Update Status Badge UI
+            statusBadge.innerText = statusText;
+            if (statusCode >= 200 && statusCode < 300) {
+                statusBadge.className = "text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                output.className = "text-emerald-400";
+            } else {
+                statusBadge.className = "text-xs font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/30";
+                output.className = "text-rose-400";
+            }
+
+            output.innerText = JSON.stringify(responseData, null, 2);
+        }
+
+        function copyApiResponse() {
+            const text = document.getElementById('api-response-output').innerText;
+            executeCopy(text);
+            showToast('JSON copiado al portapapeles');
+        }
+
+        // Helper: Safe copy to clipboard
+        function executeCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+        }
+
+        // Helper: Escape HTML
+        function escapeHtml(str) {
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const icon = type === 'success' ? 'fa-circle-check text-emerald-400' : (type === 'error' ? 'fa-circle-exclamation text-rose-400' : 'fa-circle-info text-blue-400');
+            
+            toast.className = 'glass-panel px-4 py-3 rounded-xl border border-gray-700 text-white text-xs font-medium flex items-center gap-3 shadow-xl pointer-events-auto transform transition-all duration-300 translate-y-2 opacity-0';
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i> <span>${escapeHtml(message)}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 50);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
