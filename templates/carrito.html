@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SneakerZone | Tu Carrito & Reserva Temporal</title>
+    <title>SneakerZone | Carrito y Reservas</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script> 
@@ -13,233 +13,147 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
                             400: '#818cf8',
                             500: '#6366f1',
                             600: '#4f46e5',
-                            700: '#4338ca',
-                            900: '#312e81',
                             accent: '#ff3366',
                         },
                         darkbg: '#0b0f17',
                         darkcard: '#131926',
-                        darkborder: '#1f293d'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
                     }
                 }
             }
         }
     </script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0b0f17;
-            color: #f3f4f6;
-        }
-        .glass-panel {
-            background: rgba(19, 25, 38, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0b0f17; color: #f3f4f6; }
+        .glass-panel { background: rgba(19, 25, 38, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.07); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between selection:bg-brand-accent selection:text-white">
+<body class="min-h-screen flex flex-col justify-between">
 
-    <!-- TOP NAVIGATION HEADER -->
+    <!-- HEADER -->
     <header class="sticky top-0 z-40 glass-panel border-b border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                <div class="flex items-center space-x-3">
-                    <div class="h-11 w-11 rounded-xl bg-gradient-to-tr from-brand-accent to-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/30">
-                        <i class="fa-solid font-bold fa-cart-shopping text-white text-xl"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                            SNEAKER<span class="text-brand-accent">ZONE</span>
-                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20">Carrito Activo</span>
-                        </h1>
-                        <p class="text-xs text-gray-400">Apartados temporales de tu sesión</p>
-                    </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="h-11 w-11 rounded-xl bg-gradient-to-tr from-brand-accent to-brand-500 flex items-center justify-center shadow-lg">
+                    <i class="fa-solid fa-cart-shopping text-white text-lg"></i>
                 </div>
                 <div>
-                    <a href="{{ url_for('index') }}" class="px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium transition-all flex items-center gap-2">
-                        <i class="fa-solid fa-arrow-left"></i> Volver al Catálogo
-                    </a>
+                    <h1 class="text-xl font-extrabold text-white">Tus Apartados / <span class="text-brand-accent">Carrito</span></h1>
+                    <p class="text-xs text-gray-400">Control de Reserva Temporal</p>
                 </div>
             </div>
+            <a href="{{ url_for('index') }}" class="px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium flex items-center gap-2">
+                <i class="fa-solid fa-arrow-left"></i> Volver al Catálogo
+            </a>
         </div>
     </header>
 
-    <!-- MAIN CONTAINER -->
-    <main class="max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
+    <!-- MAIN -->
+    <main class="max-w-4xl w-full mx-auto px-4 py-10 flex-grow">
 
-        <!-- FLASH MESSAGES -->
+        <!-- MENSAJES FLASH -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="mb-6 space-y-2">
                     {% for category, message in messages %}
-                        <div class="p-4 rounded-xl text-sm border flex items-center justify-between 
-                            {% if category == 'success' %} bg-emerald-500/10 border-emerald-500/30 text-emerald-400 
-                            {% else %} bg-amber-500/10 border-amber-500/30 text-amber-400 {% endif %}">
+                        <div class="p-4 rounded-xl text-sm bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-between">
                             <span>{{ message }}</span>
-                            <i class="fa-solid fa-circle-info"></i>
+                            <i class="fa-solid fa-circle-check"></i>
                         </div>
                     {% endfor %}
                 </div>
             {% endif %}
         {% endwith %}
 
-        <!-- CONTADOR REGRESIVO DE RESERVA VENCIDA / ACTIVA -->
-        {% if vence_en %}
-        <div class="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-clock text-xl animate-pulse"></i>
-                <div>
-                    <p class="text-xs font-semibold uppercase tracking-wider text-amber-300">Tiempo límite de apartado</p>
-                    <strong id="contador" data-vence="{{ vence_en.isoformat() }}" class="text-lg font-mono">Calculando tiempo...</strong>
+        {% if productos %}
+            <!-- CONTADOR REGRESIVO GLOBAL -->
+            {% if vence_en %}
+            <div class="glass-panel p-5 rounded-2xl mb-6 border border-amber-500/30 bg-amber-500/5 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400">
+                        <i class="fa-solid fa-clock text-lg animate-pulse"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-amber-400">Tiempo restante para finalizar tu compra:</h3>
+                        <p class="text-xs text-gray-400">Los productos se liberarán automáticamente al terminar el tiempo.</p>
+                    </div>
                 </div>
+                <div id="countdown" class="text-2xl font-black font-mono text-amber-300">--:--</div>
             </div>
-            <span class="text-xs bg-amber-500/20 px-3 py-1 rounded-full border border-amber-500/30">Reserva Activa</span>
-        </div>
-        {% endif %}
+            {% endif %}
 
-        <!-- LISTA DE PRODUCTOS EN EL CARRITO -->
-        <div class="glass-panel rounded-2xl border border-gray-800 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-800 bg-darkcard">
-                <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-box-archive text-brand-400"></i> Tus Tenis Apartados
-                </h2>
-            </div>
-
-            <div class="divide-y divide-gray-800">
-                {% if productos %}
-                    {% for item in productos %}
-                    <div class="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <!-- LISTA DE PRODUCTOS EN CARRITO -->
+            <div class="glass-panel rounded-2xl overflow-hidden border border-gray-800 divide-y divide-gray-800">
+                {% for item in productos %}
+                <div class="p-5 flex items-center justify-between gap-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="h-12 w-12 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-brand-400">
+                            <i class="fa-solid fa-shoe-prints text-xl"></i>
+                        </div>
                         <div>
-                            <h3 class="text-base font-bold text-white">{{ item.nombre }}</h3>
-                            <p class="text-xs text-gray-400 mt-0.5">Cantidad apartada: <span class="text-brand-400 font-semibold">{{ item.cantidad }} unidad(es)</span></p>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <!-- Formulario para cancelar/eliminar este producto del carrito -->
-                            <form action="{{ url_for('carrito_eliminar', producto_id=item.id) }}" method="POST">
-                                <button type="submit" class="px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-semibold transition-all flex items-center gap-1.5">
-                                    <i class="fa-solid fa-trash-can"></i> Cancelar Apartado
-                                </button>
-                            </form>
+                            <h4 class="font-bold text-white text-base">{{ item.nombre }}</h4>
+                            <p class="text-xs text-gray-400">Cantidad reservada: <span class="text-brand-400 font-semibold">{{ item.cantidad }} unidad(es)</span></p>
                         </div>
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="text-center py-16 px-4">
-                        <i class="fa-solid fa-cart-arrow-down text-5xl text-gray-600 mb-4"></i>
-                        <h3 class="text-lg font-semibold text-gray-300">Tu carrito está vacío</h3>
-                        <p class="text-sm text-gray-500 mt-1">No tienes ninguna reserva temporal activa en este momento.</p>
-                        <a href="{{ url_for('index') }}" class="inline-mt-4 mt-5 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold transition-all shadow-md shadow-brand-600/30 inline-flex items-center gap-2">
-                            Explorar Catálogo
-                        </a>
-                    </div>
-                {% endif %}
+                    <form action="{{ url_for('carrito_eliminar', producto_id=item.id) }}" method="POST">
+                        <button type="submit" class="px-3.5 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-semibold transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-trash"></i> Cancelar Reserva
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
             </div>
-        </div>
-
+        {% else %}
+            <!-- ESTADO VACÍO -->
+            <div class="glass-panel p-12 rounded-2xl text-center space-y-4 border border-gray-800">
+                <div class="h-16 w-16 mx-auto rounded-full bg-gray-800 flex items-center justify-center text-gray-500 text-2xl">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                </div>
+                <h3 class="text-lg font-bold text-white">Tu carrito temporal está vacío</h3>
+                <p class="text-sm text-gray-400 max-w-sm mx-auto">No tienes ningún tenis apartado en este momento. Ve al catálogo y haz clic en "Reservar (5 min)".</p>
+                <a href="{{ url_for('index') }}" class="inline-block px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold">
+                    Ir al Catálogo
+                </a>
+            </div>
+        {% endif %}
     </main>
 
-    <!-- FOOTER -->
-    <footer class="border-t border-gray-800/80 bg-darkbg py-6 mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-            <p>© 2026 <span class="text-gray-300 font-semibold">SneakerZone</span>. CBTIS Laboratorio Web.</p>
-        </div>
-    </footer>
-
-    <!-- SCRIPT DEL CONTADOR REGRESIVO (5 MINUTOS) -->
+    <!-- SCRIPT DEL CONTADOR REGRESIVO -->
+    {% if vence_en %}
     <script>
-        const contador = document.getElementById("contador");
-        if (contador) {
-            const limite = new Date(contador.dataset.vence).getTime();
-            const reloj = setInterval(() => {
-                const faltan = Math.max(0, limite - Date.now());
-                const min = String(Math.floor(faltan / 60000)).padStart(2, "0");
-                const seg = String(Math.floor((faltan % 60000) / 1000)).padStart(2, "0");
-                contador.textContent = `Tiempo restante: ${min}:${seg}`;
-                
-                if (faltan === 0) {
-                    clearInterval(reloj);
-                    alert("El tiempo de tu reserva ha expirado. El producto ha sido liberado.");
-                    location.reload();
-                }
-            }, 1000);
+        const parseIsoUTC = (isoStr) => {
+            if (!isoStr.endsWith('Z') && !isoStr.includes('+')) {
+                isoStr += 'Z';
+            }
+            return new Date(isoStr);
+        };
+
+        const fechaVencimiento = parseIsoUTC("{{ vence_en.isoformat() }}").getTime();
+
+        function actualizarContador() {
+            const ahora = new Date().getTime();
+            const distancia = fechaVencimiento - ahora;
+
+            if (distancia < 0) {
+                document.getElementById("countdown").innerHTML = "EXPIRADO";
+                setTimeout(() => location.reload(), 1500);
+                return;
+            }
+
+            const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
+            const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
+
+            document.getElementById("countdown").innerHTML = 
+                String(minutos).padStart(2, '0') + ":" + String(segundos).padStart(2, '0');
         }
+
+        setInterval(actualizarContador, 1000);
+        actualizarContador();
     </script>
+    {% endif %}
 </body>
 </html>
-```[cite: 1, 2]
-
----
-
-### ¿Qué te falta agregar en tu archivo `app.py` para que el carrito funcione?
-Para que esta vista de carrito y la cancelación funcionen perfectamente con tus rutas, asegúrate de tener implementadas estas dos funciones en tu archivo `app.py`:
-
-1. **La ruta para ver el carrito (`/carrito`):**
-```python
-@app.route("/carrito")
-def ver_carrito():
-    liberar_reservas_vencidas()
-    reserva_id = session.get("reserva_id")
-    productos_carrito = []
-    items = list(reservas.find({
-        "reserva_id": reserva_id,
-        "estado": "activa",
-        "vence_en": {"$gt": ahora_utc()}
-    })) if reserva_id else []
-
-    for item in items:
-        producto = alumnos.find_one({"_id": item["producto_id"]})
-        if not producto:
-            continue
-        productos_carrito.append({
-            "id": str(producto["_id"]),
-            "nombre": producto.get("nombre", "Tenis"),
-            "cantidad": int(item["cantidad"])
-        })
-
-    vence_en = min((i["vence_en"] for i in items), default=None)
-    return render_template("carrito.html", productos=productos_carrito, vence_en=vence_en)
-```[cite: 2]
-
-2. **La ruta para cancelar/eliminar el apartado (`/carrito/eliminar/<producto_id>`):**
-```python
-@app.route("/carrito/eliminar/<producto_id>", methods=["POST"])
-def carrito_eliminar(producto_id):
-    if not ObjectId.is_valid(producto_id):
-        abort(404)
-    reserva_id = session.get("reserva_id")
-    oid = ObjectId(producto_id)
-    with cliente.start_session() as mongo_session:
-        with mongo_session.start_transaction():
-            eliminada = reservas.find_one_and_delete(
-                {
-                    "reserva_id": reserva_id,
-                    "producto_id": oid,
-                    "estado": "activa"
-                },
-                session=mongo_session
-            )
-            if eliminada:
-                alumnos.update_one(
-                    {"_id": oid},
-                    {"$inc": {"reservadas": -eliminada["cantidad"]}},
-                    session=mongo_session
-                )
-    flash("Reserva cancelada y producto liberado con éxito.", "success")
-    return redirect(url_for("ver_carrito"))
-```[cite: 2]
-
-¡Copia este archivo en tu carpeta `templates` como `carrito.html` y agrégales esas rutas a tu `app.py` para tener la aplicación lista para tu práctica del CBTIS! Dime si necesitas ayuda con alguna otra función o con las pruebas de los dos usuarios.
