@@ -76,6 +76,11 @@
                     <button onclick="openModal('create')" class="bg-gradient-to-r from-brand-600 to-brand-accent hover:from-brand-500 hover:to-brand-accent text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 shadow-lg shadow-brand-accent/20 flex items-center gap-2 active:scale-95">
                         <i class="fa-solid fa-plus text-xs"></i>
                         <span>Nuevo Tenis</span>
+                        <!-- Enlace o botón hacia el carrito en el header de index.html -->
+<a href="{{ url_for('ver_carrito') }}" class="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-medium text-sm transition-all flex items-center gap-2">
+    <i class="fa-solid fa-cart-shopping text-brand-400"></i>
+    <span>Ver Carrito / Apartados</span>
+</a>
                     </button>
                 </div>
             </div>
