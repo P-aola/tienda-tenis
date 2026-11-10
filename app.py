@@ -1,7 +1,7 @@
 import os
 import uuid
 from datetime import datetime, timedelta, timezone
-from flask import Flask, render_template, request, redirect, url_for, abort, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, abort, jsonify, session, flash
 from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import PyMongoError
 from bson import ObjectId
@@ -10,7 +10,7 @@ app = Flask(__name__)
 # Se requiere una secret_key para el manejo de sesiones del visitante (reserva_id)
 app.secret_key = os.getenv("SECRET_KEY", "secreto-sneakerzone-temporal")
 
-# Configuración de MongoDB Atlas o local con tz_aware=True para manejar UTC correctamente
+# Configuración de MongoDB Atlas
 MONGO_URI = "mongodb+srv://cruzmadrigalpaolacbtis272_db_user:facil123@buffalo01.axmhp0e.mongodb.net/"
 cliente = MongoClient(
     MONGO_URI,
@@ -63,7 +63,6 @@ def reservar_unidad(producto_id, reserva_id):
     oid = ObjectId(producto_id)
     with cliente.start_session() as mongo_session:
         with mongo_session.start_transaction():
-            # Operación atómica: verifica disponibilidad y suma a reservadas en un solo paso
             producto = alumnos.find_one_and_update(
                 {
                     "_id": oid,
@@ -113,7 +112,6 @@ def leer_formulario(datos=None):
     if estado not in ["Disponible", "Agotado"]:
         abort(400, description="Selecciona un estado válido.")
     
-    # Manejo opcional de existencias para el stock
     try:
         existencias = int(datos.get("existencias", 10))
     except ValueError:
@@ -140,7 +138,6 @@ def index():
     try:
         liberar_reservas_vencidas()
         productos = list(alumnos.find())
-        # Calcular unidades disponibles reales para la vista
         for p in productos:
             p["disponibles"] = max(0, int(p.get("existencias", 0)) - int(p.get("reservadas", 0)))
         return render_template("index.html", productos=productos)
@@ -158,7 +155,6 @@ def editar(id):
     alumno = buscar_alumno(id)
     if request.method == "POST":
         datos = leer_formulario()
-        # Conservar existencias y reservadas anteriores si ya existen
         datos["existencias"] = alumno.get("existencias", 10)
         datos["reservadas"] = alumno.get("reservadas", 0)
         alumnos.update_one({"_id": alumno["_id"]}, {"$set": datos})
@@ -171,7 +167,6 @@ def eliminar(id):
     alumnos.delete_one({"_id": alumno["_id"]})
     return redirect(url_for("index"))
 
-# Ruta para apartar/reservar temporalmente una unidad
 @app.route("/reservar/<id>", methods=["POST"])
 def reservar(id):
     liberar_reservas_vencidas()
@@ -243,7 +238,6 @@ def error_peticion(error):
         "error.html", mensaje=error.description
     ), error.code
 
-# Ruta para ver los productos apartados en el carrito
 @app.route("/carrito")
 def ver_carrito():
     liberar_reservas_vencidas()
@@ -269,7 +263,6 @@ def ver_carrito():
     vence_en = min((i["vence_en"] for i in items), default=None)
     return render_template("carrito.html", productos=productos_carrito, vence_en=vence_en)
 
-# Ruta para cancelar o eliminar un apartado del carrito
 @app.route("/carrito/eliminar/<producto_id>", methods=["POST"])
 def carrito_eliminar(producto_id):
     if not ObjectId.is_valid(producto_id):
