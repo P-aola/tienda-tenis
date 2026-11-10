@@ -1,17 +1,101 @@
 import os
-from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, abort, jsonify
-from pymongo import MongoClient
+import uuid
+from datetime import datetime, timedelta, timezone
+from flask import Flask, render_template, request, redirect, url_for, abort, jsonify, session
+from pymongo import MongoClient, ReturnDocument
 from pymongo.errors import PyMongoError
 from bson import ObjectId
 
 app = Flask(__name__)
+# Se requiere una secret_key para el manejo de sesiones del visitante (reserva_id)
+app.secret_key = os.getenv("SECRET_KEY", "secreto-sneakerzone-temporal")
 
-# Configuración de MongoDB Atlas o local
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://127.0.0.1:27017/")
-cliente = MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000)
+# Configuración de MongoDB Atlas o local con tz_aware=True para manejar UTC correctamente
+MONGO_URI = "mongodb+srv://cruzmadrigalpaolacbtis272_db_user:facil123@buffalo01.axmhp0e.mongodb.net/"
+cliente = MongoClient(
+    MONGO_URI,
+    serverSelectionTimeoutMS=10000,
+    tz_aware=True
+)
 base_datos = cliente["tienda_tenis"]
 alumnos = base_datos["productos"]
+reservas = base_datos["reservas"]
+
+DURACION_RESERVA_MINUTOS = 5
+
+# Crear índices para optimizar y asegurar las reservas únicas por usuario
+try:
+    reservas.create_index([("reserva_id", 1), ("producto_id", 1)], unique=True)
+    reservas.create_index("vence_en")
+except Exception:
+    pass
+
+def ahora_utc():
+    return datetime.now(timezone.utc)
+
+def obtener_reserva_id():
+    if not session.get("reserva_id"):
+        session["reserva_id"] = uuid.uuid4().hex
+    return session["reserva_id"]
+
+def liberar_reservas_vencidas():
+    vencidas = list(reservas.find({
+        "estado": "activa",
+        "vence_en": {"$lte": ahora_utc()}
+    }))
+    for candidata in vencidas:
+        with cliente.start_session() as mongo_session:
+            with mongo_session.start_transaction():
+                eliminada = reservas.find_one_and_delete(
+                    {"_id": candidata["_id"], "estado": "activa"},
+                    session=mongo_session
+                )
+                if eliminada:
+                    alumnos.update_one(
+                        {"_id": eliminada["producto_id"]},
+                        {"$inc": {"reservadas": -eliminada["cantidad"]}},
+                        session=mongo_session
+                    )
+
+def reservar_unidad(producto_id, reserva_id):
+    ahora = ahora_utc()
+    vence = ahora + timedelta(minutes=DURACION_RESERVA_MINUTOS)
+    oid = ObjectId(producto_id)
+    with cliente.start_session() as mongo_session:
+        with mongo_session.start_transaction():
+            # Operación atómica: verifica disponibilidad y suma a reservadas en un solo paso
+            producto = alumnos.find_one_and_update(
+                {
+                    "_id": oid,
+                    "$expr": {
+                        "$gt": [
+                            {
+                                "$subtract": [
+                                    {"$ifNull": ["$existencias", 0]},
+                                    {"$ifNull": ["$reservadas", 0]}
+                                ]
+                            },
+                            0
+                        ]
+                    }
+                },
+                {"$inc": {"reservadas": 1}},
+                return_document=ReturnDocument.AFTER,
+                session=mongo_session
+            )
+            if producto is None:
+                return False
+            reservas.update_one(
+                {"reserva_id": reserva_id, "producto_id": oid},
+                {
+                    "$inc": {"cantidad": 1},
+                    "$set": {"estado": "activa", "vence_en": vence},
+                    "$setOnInsert": {"creada_en": ahora}
+                },
+                upsert=True,
+                session=mongo_session
+            )
+            return True
 
 def leer_formulario(datos=None):
     if datos is None:
@@ -28,24 +112,39 @@ def leer_formulario(datos=None):
         abort(400, description="Máximo: nombre 80 y categoría 20.")
     if estado not in ["Disponible", "Agotado"]:
         abort(400, description="Selecciona un estado válido.")
-    return {"nombre": nombre, "categoria": categoria, "estado": estado}
+    
+    # Manejo opcional de existencias para el stock
+    try:
+        existencias = int(datos.get("existencias", 10))
+    except ValueError:
+        existencias = 10
+
+    return {
+        "nombre": nombre, 
+        "categoria": categoria, 
+        "estado": estado,
+        "existencias": existencias,
+        "reservadas": 0
+    }
 
 def buscar_alumno(id):
     if not ObjectId.is_valid(id):
-        abort(404, description="La clave del alumno no es válida.")
+        abort(404, description="La clave del producto no es válida.")
     alumno = alumnos.find_one({"_id": ObjectId(id)})
     if alumno is None:
-        abort(404, description="Este alumno ya no existe.")
+        abort(404, description="Este producto ya no existe.")
     return alumno
 
 @app.route("/")
 def index():
     try:
-        # Intentamos conectar y buscar
+        liberar_reservas_vencidas()
         productos = list(alumnos.find())
+        # Calcular unidades disponibles reales para la vista
+        for p in productos:
+            p["disponibles"] = max(0, int(p.get("existencias", 0)) - int(p.get("reservadas", 0)))
         return render_template("index.html", productos=productos)
     except Exception as e:
-        # Esto te mostrará el error EXACTO en la pantalla de tu web
         return f"<h3>¡Aquí está la causa del error!</h3><p style='color:red;'>{str(e)}</p>"
 
 @app.route("/agregar", methods=["POST"])
@@ -59,6 +158,9 @@ def editar(id):
     alumno = buscar_alumno(id)
     if request.method == "POST":
         datos = leer_formulario()
+        # Conservar existencias y reservadas anteriores si ya existen
+        datos["existencias"] = alumno.get("existencias", 10)
+        datos["reservadas"] = alumno.get("reservadas", 0)
         alumnos.update_one({"_id": alumno["_id"]}, {"$set": datos})
         return redirect(url_for("index"))
     return render_template("editar.html", alumno=alumno)
@@ -68,6 +170,16 @@ def eliminar(id):
     alumno = buscar_alumno(id)
     alumnos.delete_one({"_id": alumno["_id"]})
     return redirect(url_for("index"))
+
+# Ruta para apartar/reservar temporalmente una unidad
+@app.route("/reservar/<id>", methods=["POST"])
+def reservar(id):
+    liberar_reservas_vencidas()
+    reserva_id = obtener_reserva_id()
+    if reservar_unidad(id, reserva_id):
+        return jsonify({"success": True, "message": "Producto reservado temporalmente por 5 minutos."}), 200
+    else:
+        return jsonify({"success": False, "message": "La última unidad acaba de ser reservada por otro usuario."}), 409
 
 @app.route("/ayuda")
 def ayuda():
@@ -80,12 +192,16 @@ def error_mongo(error):
     if request.path.startswith("/api/"):
         return jsonify({"error": mensaje}), 503
     return render_template("error.html", mensaje=mensaje), 503
+
 def producto_json(producto):
     return {
         "id": str(producto["_id"]),
         "nombre": producto["nombre"],
         "categoria": producto["categoria"],
-        "estado": producto["estado"]
+        "estado": producto["estado"],
+        "existencias": producto.get("existencias", 0),
+        "reservadas": producto.get("reservadas", 0),
+        "disponibles": max(0, int(producto.get("existencias", 0)) - int(producto.get("reservadas", 0)))
     }
 
 def leer_json():
@@ -96,6 +212,7 @@ def leer_json():
 
 @app.route("/api/productos", methods=["GET", "POST"])
 def api_productos():
+    liberar_reservas_vencidas()
     if request.method == "POST":
         datos = leer_json()
         resultado = alumnos.insert_one(datos)
@@ -125,6 +242,60 @@ def error_peticion(error):
     return render_template(
         "error.html", mensaje=error.description
     ), error.code
+
+# Ruta para ver los productos apartados en el carrito
+@app.route("/carrito")
+def ver_carrito():
+    liberar_reservas_vencidas()
+    reserva_id = session.get("reserva_id")
+    productos_carrito = []
+    
+    items = list(reservas.find({
+        "reserva_id": reserva_id,
+        "estado": "activa",
+        "vence_en": {"$gt": ahora_utc()}
+    })) if reserva_id else []
+
+    for item in items:
+        producto = alumnos.find_one({"_id": item["producto_id"]})
+        if not producto:
+            continue
+        productos_carrito.append({
+            "id": str(producto["_id"]),
+            "nombre": producto.get("nombre", "Tenis"),
+            "cantidad": int(item["cantidad"])
+        })
+
+    vence_en = min((i["vence_en"] for i in items), default=None)
+    return render_template("carrito.html", productos=productos_carrito, vence_en=vence_en)
+
+# Ruta para cancelar o eliminar un apartado del carrito
+@app.route("/carrito/eliminar/<producto_id>", methods=["POST"])
+def carrito_eliminar(producto_id):
+    if not ObjectId.is_valid(producto_id):
+        abort(404)
+    reserva_id = session.get("reserva_id")
+    oid = ObjectId(producto_id)
+    
+    with cliente.start_session() as mongo_session:
+        with mongo_session.start_transaction():
+            eliminada = reservas.find_one_and_delete(
+                {
+                    "reserva_id": reserva_id,
+                    "producto_id": oid,
+                    "estado": "activa"
+                },
+                session=mongo_session
+            )
+            if eliminada:
+                alumnos.update_one(
+                    {"_id": oid},
+                    {"$inc": {"reservadas": -eliminada["cantidad"]}},
+                    session=mongo_session
+                )
+                
+    flash("Reserva cancelada y producto liberado con éxito.", "success")
+    return redirect(url_for("ver_carrito"))
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
