@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ producto.nombre }} | SneakerZone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body class="bg-gray-950 text-white min-h-screen">
+
+    <main class="max-w-4xl mx-auto p-6">
+        <a href="/" class="text-blue-400 hover:underline">← Volver a la tienda</a>
+
+        <section class="bg-gray-900 rounded-2xl p-8 mt-6">
+            <h1 class="text-3xl font-bold mb-6">
+                {{ producto.nombre }}
+            </h1>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <div>
+                    <p class="text-gray-400 mb-2">Categoría</p>
+                    <p class="text-xl">{{ producto.categoria }}</p>
+
+                    <p class="text-gray-400 mt-5 mb-2">Estado</p>
+                    <p>{{ producto.estado }}</p>
+
+                    <p class="text-gray-400 mt-5 mb-2">Disponibles</p>
+                    <p>{{ producto.disponibles }}</p>
+                </div>
+
+                <div class="bg-white rounded-xl p-6 text-center">
+                    <h2 class="text-gray-900 font-bold mb-4">
+                        Código QR del producto
+                    </h2>
+
+                    <div id="qrcode" class="flex justify-center"></div>
+
+                    <button onclick="descargarQR()"
+                        class="mt-5 bg-blue-600 text-white px-5 py-3 rounded-lg">
+                        Descargar QR
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+       const urlProducto = JSON.parse('{{ url_producto | tojson }}');
+
+        new QRCode(document.getElementById("qrcode"), {
+            text: urlProducto,
+            width: 200,
+            height: 200
+        });
+
+        function descargarQR() {
+            const imagen = document.querySelector("#qrcode img");
+
+            if (imagen) {
+                const enlace = document.createElement("a");
+                enlace.href = imagen.src;
+                enlace.download = "codigo-qr-producto.png";
+                enlace.click();
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -1,12 +1,16 @@
+
 <!DOCTYPE html>
 <html lang="es" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SneakerZone | Catálogo & Reserva Temporal</title>
-    <!-- Tailwind CSS -->
+
+    <title>SneakerZone | Catálogo y Reserva Temporal</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <script> 
+
+    <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -33,227 +37,713 @@
             }
         }
     </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0b0f17;
             color: #f3f4f6;
         }
+
         .glass-panel {
             background: rgba(19, 25, 38, 0.7);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.07);
         }
+
+        .product-image {
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.07);
+        }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col justify-between selection:bg-brand-accent selection:text-white">
 
-    <!-- TOP NAVIGATION HEADER -->
-     <!-- Action / Navigation Buttons -->
-                <div class="flex items-center space-x-3">
-                    <a href="{{ url_for('ver_carrito') }}" class="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-medium text-sm transition-all flex items-center gap-2 border border-gray-700">
-                        <i class="fa-solid fa-cart-shopping text-brand-400"></i>
-                        <span>Ver Carrito / Apartados</span>
-                    </a>
-                    <button onclick="openModal('create')" class="bg-gradient-to-r from-brand-600 to-brand-accent hover:from-brand-500 hover:to-brand-accent text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 shadow-lg shadow-brand-accent/20 flex items-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-plus text-xs"></i>
-                        <span>Nuevo Tenis</span>
-                    </button>
-                </div>
+    <!-- ===================================== -->
+    <!-- ENCABEZADO -->
+    <!-- ===================================== -->
+
     <header class="sticky top-0 z-40 glass-panel border-b border-gray-800">
+
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                <!-- Brand Logo & Title -->
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
+
+                <!-- LOGO -->
+
                 <div class="flex items-center space-x-3">
+
                     <div class="h-11 w-11 rounded-xl bg-gradient-to-tr from-brand-accent to-brand-500 flex items-center justify-center shadow-lg shadow-brand-500/30">
-                        <i class="fa-solid font-bold fa-shoe-prints text-white text-xl"></i>
+
+                        <i class="fa-solid fa-shoe-prints text-white text-xl"></i>
+
                     </div>
+
                     <div>
-                        <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+
+                        <h1 class="text-xl font-extrabold tracking-tight text-white">
+
                             SNEAKER<span class="text-brand-accent">ZONE</span>
-                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20">Reserva Temporal</span>
+
+                            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20">
+                                Reserva Temporal
+                            </span>
+
                         </h1>
-                        <p class="text-xs text-gray-400">Catálogo Oficial de Tenis</p>
+
+                        <p class="text-xs text-gray-400">
+                            Catálogo Oficial de Tenis
+                        </p>
+
                     </div>
+
                 </div>
 
-                <!-- Action / Navigation Buttons -->
-                <div class="flex items-center space-x-3">
-                    <button onclick="openModal('create')" class="bg-gradient-to-r from-brand-600 to-brand-accent hover:from-brand-500 hover:to-brand-accent text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 shadow-lg shadow-brand-accent/20 flex items-center gap-2 active:scale-95">
+
+                <!-- BOTONES DE NAVEGACIÓN -->
+
+                <div class="flex flex-wrap items-center justify-center gap-3">
+
+                    <a href="{{ url_for('ver_carrito') }}"
+                       class="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-medium text-sm transition-all flex items-center gap-2 border border-gray-700">
+
+                        <i class="fa-solid fa-cart-shopping text-brand-400"></i>
+
+                        <span>Carrito / Apartados</span>
+
+                    </a>
+
+
+                    <a href="{{ url_for('ayuda') }}"
+                       class="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-medium text-sm transition-all flex items-center gap-2 border border-gray-700">
+
+                        <i class="fa-solid fa-circle-question text-brand-400"></i>
+
+                        <span>Ayuda</span>
+
+                    </a>
+
+
+                    <button onclick="openModal()"
+                            class="bg-gradient-to-r from-brand-600 to-brand-accent hover:from-brand-500 hover:to-brand-accent text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 shadow-lg shadow-brand-accent/20 flex items-center gap-2 active:scale-95">
+
                         <i class="fa-solid fa-plus text-xs"></i>
+
                         <span>Nuevo Tenis</span>
+
                     </button>
+
                 </div>
+
             </div>
+
         </div>
+
     </header>
 
-    <!-- MAIN CONTAINER -->
+
+    <!-- ===================================== -->
+    <!-- CONTENIDO PRINCIPAL -->
+    <!-- ===================================== -->
+
     <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
 
-        <!-- FLASH MESSAGES / NOTIFICATIONS -->
+
+        <!-- MENSAJES DEL SISTEMA -->
+
         {% with messages = get_flashed_messages(with_categories=true) %}
+
             {% if messages %}
+
                 <div class="mb-6 space-y-2">
+
                     {% for category, message in messages %}
-                        <div class="p-4 rounded-xl text-sm border flex items-center justify-between 
-                            {% if category == 'success' %} bg-emerald-500/10 border-emerald-500/30 text-emerald-400 
-                            {% elif category == 'warning' %} bg-amber-500/10 border-amber-500/30 text-amber-400 
-                            {% else %} bg-rose-500/10 border-rose-500/30 text-rose-400 {% endif %}">
+
+                        <div class="p-4 rounded-xl text-sm border flex items-center justify-between
+
+                            {% if category == 'success' %}
+                                bg-emerald-500/10 border-emerald-500/30 text-emerald-400
+
+                            {% elif category == 'warning' %}
+                                bg-amber-500/10 border-amber-500/30 text-amber-400
+
+                            {% else %}
+                                bg-rose-500/10 border-rose-500/30 text-rose-400
+                            {% endif %}">
+
                             <span>{{ message }}</span>
+
                             <i class="fa-solid fa-circle-info"></i>
+
                         </div>
+
                     {% endfor %}
+
                 </div>
+
             {% endif %}
+
         {% endwith %}
 
-        <!-- CATALOG GRID VIEW -->
+
+
+        <!-- ===================================== -->
+        <!-- CATÁLOGO -->
+        <!-- ===================================== -->
+
         <section class="space-y-6">
-            <div class="flex items-center justify-between mb-4">
+
+
+            <!-- TÍTULO DEL CATÁLOGO -->
+
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+
                 <h2 class="text-xl font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-store text-brand-400"></i> Catálogo Disponible
+
+                    <i class="fa-solid fa-store text-brand-400"></i>
+
+                    Catálogo Disponible
+
                 </h2>
-                <p class="text-xs text-gray-400">Las reservas duran 5 minutos antes de liberarse automáticamente.</p>
+
+                <p class="text-xs text-gray-400">
+
+                    Las reservas duran 5 minutos antes de liberarse automáticamente.
+
+                </p>
+
             </div>
 
+
+
+            <!-- PRODUCTOS -->
+
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+
                 {% for producto in productos %}
-                <div class="glass-panel rounded-2xl border border-gray-800 hover:border-brand-500/50 transition-all duration-300 flex flex-col justify-between overflow-hidden group">
-                    
-                    <!-- Card Banner -->
-                    <div class="h-36 bg-gradient-to-b from-indigo-600/30 to-transparent relative flex items-center justify-center overflow-hidden">
-                        <i class="fa-solid fa-shoe-prints text-6xl text-white/10 group-hover:scale-110 transition-transform duration-500"></i>
-                        <span class="absolute top-3 left-3 bg-darkcard/90 text-gray-300 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border border-gray-700">
-                            {{ producto.categoria }}
-                        </span>
-                        
-                        <!-- Badge de Disponibilidad Real -->
-                        {% if producto.disponibles > 0 %}
-                            <span class="absolute top-3 right-3 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg">
-                                Disponibles: {{ producto.disponibles }}
-                            </span>
+
+
+                <div class="product-card glass-panel rounded-2xl border border-gray-800 hover:border-brand-500/50 transition-all duration-300 flex flex-col justify-between overflow-hidden group">
+
+
+                    <!-- BANNER E IMAGEN DEL PRODUCTO -->
+
+                    <div class="h-48 bg-gradient-to-b from-indigo-600/30 to-transparent relative flex items-center justify-center overflow-hidden">
+
+                        {% if producto.imagen %}
+
+                            <img
+                                src="{{ producto.imagen }}"
+                                alt="{{ producto.nombre }}"
+                                class="product-image w-full h-full object-contain p-3"
+                                loading="lazy"
+                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                            >
+
+                            <div class="w-full h-full items-center justify-center absolute inset-0 hidden">
+
+                                <i class="fa-solid fa-shoe-prints text-6xl text-white/10"></i>
+
+                            </div>
+
                         {% else %}
-                            <span class="absolute top-3 right-3 bg-rose-500/10 text-rose-400 border border-rose-500/30 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg">
-                                Sin disponibilidad temporal
-                            </span>
+
+                            <i class="fa-solid fa-shoe-prints text-6xl text-white/10"></i>
+
                         {% endif %}
+
+
+                        <!-- CATEGORÍA -->
+
+                        <span class="absolute top-3 left-3 bg-darkcard/90 text-gray-300 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg border border-gray-700">
+
+                            {{ producto.categoria }}
+
+                        </span>
+
+
+
+                        <!-- DISPONIBILIDAD -->
+
+                        {% if producto.disponibles > 0 %}
+
+                            <span class="absolute top-3 right-3 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg">
+
+                                Disponibles: {{ producto.disponibles }}
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="absolute top-3 right-3 bg-rose-500/10 text-rose-400 border border-rose-500/30 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg">
+
+                                Sin disponibilidad
+
+                            </span>
+
+                        {% endif %}
+
                     </div>
 
-                    <!-- Card Body -->
+
+
+                    <!-- INFORMACIÓN DEL PRODUCTO -->
+
                     <div class="p-5 flex-grow flex flex-col justify-between space-y-4">
+
+
                         <div>
+
                             <h3 class="text-base font-bold text-white group-hover:text-brand-400 transition-colors">
+
                                 {{ producto.nombre }}
+
                             </h3>
-                            <p class="text-xs text-gray-400 mt-1">
-                                Estado de inventario: <span class="font-medium text-gray-300">{{ producto.estado }}</span>
+
+
+                            <p class="text-xs text-gray-400 mt-2">
+
+                                Estado de inventario:
+
+                                <span class="font-medium text-gray-300">
+
+                                    {{ producto.estado }}
+
+                                </span>
+
                             </p>
+
+
+                            <p class="text-xs text-gray-400 mt-1">
+
+                                Existencias:
+
+                                <span class="font-medium text-gray-300">
+
+                                    {{ producto.existencias }}
+
+                                </span>
+
+                            </p>
+
                         </div>
 
-                        <!-- Botón de Reserva Temporal / Acción -->
-                        <div class="pt-2 border-t border-gray-800/80 flex items-center justify-between">
+
+
+                        <!-- ACCIONES DEL PRODUCTO -->
+
+                        <div class="pt-3 border-t border-gray-800/80 flex flex-col gap-2">
+
+
+                            <!-- VER PRODUCTO Y QR -->
+
+                            <a href="{{ url_for('ver_producto', id=producto._id) }}"
+
+                               class="w-full py-2.5 px-4 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white font-semibold text-xs transition-all flex items-center justify-center gap-2">
+
+                                <i class="fa-solid fa-eye text-brand-400"></i>
+
+                                Ver producto / Código QR
+
+                            </a>
+
+
+
+                            <!-- RESERVAR -->
+
                             {% if producto.disponibles > 0 %}
-                                <button onclick="reservarProducto('{{ producto._id }}')" class="w-full py-2.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-all shadow-md shadow-brand-600/30 flex items-center justify-center gap-2">
-                                    <i class="fa-solid fa-clock"></i> Reservar (5 min)
+
+                                <button onclick="reservarProducto('{{ producto._id }}')"
+
+                                        class="w-full py-2.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-all shadow-md shadow-brand-600/30 flex items-center justify-center gap-2">
+
+                                    <i class="fa-solid fa-clock"></i>
+
+                                    Reservar (5 min)
+
                                 </button>
+
                             {% else %}
-                                <button disabled class="w-full py-2.5 px-4 rounded-xl bg-gray-800 text-gray-500 font-semibold text-xs cursor-not-allowed flex items-center justify-center gap-2">
-                                    <i class="fa-solid fa-ban"></i> Agotado Temporalmente
+
+                                <button disabled
+
+                                        class="w-full py-2.5 px-4 rounded-xl bg-gray-800 text-gray-500 font-semibold text-xs cursor-not-allowed flex items-center justify-center gap-2">
+
+                                    <i class="fa-solid fa-ban"></i>
+
+                                    Agotado Temporalmente
+
                                 </button>
+
                             {% endif %}
+
+
                         </div>
+
                     </div>
 
                 </div>
+
+
+                {% else %}
+
+
+                <!-- CUANDO NO HAY PRODUCTOS -->
+
+                <div class="col-span-full glass-panel rounded-2xl p-12 text-center">
+
+                    <i class="fa-solid fa-box-open text-5xl text-gray-600 mb-4"></i>
+
+                    <h3 class="text-lg font-bold text-white">
+
+                        Todavía no hay productos
+
+                    </h3>
+
+                    <p class="text-sm text-gray-400 mt-2">
+
+                        Agrega tu primer par de tenis para comenzar.
+
+                    </p>
+
+                </div>
+
+
                 {% endfor %}
+
+
             </div>
+
         </section>
 
     </main>
 
-    <!-- FOOTER -->
+
+
+    <!-- ===================================== -->
+    <!-- PIE DE PÁGINA -->
+    <!-- ===================================== -->
+
     <footer class="border-t border-gray-800/80 bg-darkbg py-6 mt-12">
+
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-            <p>© 2026 <span class="text-gray-300 font-semibold">SneakerZone</span>. CBTIS Laboratorio Web.</p>
+
+            <p>
+
+                © 2026
+
+                <span class="text-gray-300 font-semibold">
+                    SneakerZone
+                </span>.
+
+                CBTIS Laboratorio Web.
+
+            </p>
+
+
             <div class="flex items-center space-x-4">
-                <span class="hover:text-gray-300">Base de datos: <code class="text-brand-400 font-mono">Buffalo01</code></span>
+
+                <span>
+
+                    Base de datos:
+
+                    <code class="text-brand-400 font-mono">
+                        Buffalo01
+                    </code>
+
+                </span>
+
             </div>
+
         </div>
+
     </footer>
 
-    <!-- MODAL SIMPLE PARA NUEVO TENIS -->
-    <div id="product-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+
+
+    <!-- ===================================== -->
+    <!-- MODAL PARA AGREGAR TENIS -->
+    <!-- ===================================== -->
+
+    <div id="product-modal"
+
+         class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+
+
         <div class="glass-panel w-full max-w-lg rounded-2xl border border-gray-700 shadow-2xl overflow-hidden">
+
+
+            <!-- ENCABEZADO DEL MODAL -->
+
             <div class="px-6 py-4 border-b border-gray-800 flex items-center justify-between bg-darkcard">
+
                 <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-shoe-prints text-brand-accent"></i> Agregar Nuevo Tenis
+
+                    <i class="fa-solid fa-shoe-prints text-brand-accent"></i>
+
+                    Agregar Nuevo Tenis
+
                 </h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-white">
+
+
+                <button type="button"
+                        onclick="closeModal()"
+                        class="text-gray-400 hover:text-white">
+
                     <i class="fa-solid fa-xmark text-lg"></i>
+
                 </button>
+
             </div>
-            <form action="{{ url_for('agregar') }}" method="POST" class="p-6 space-y-5">
+
+
+
+            <!-- FORMULARIO -->
+
+            <form action="{{ url_for('agregar') }}"
+                  method="POST"
+                  class="p-6 space-y-5">
+
+
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">Nombre / Modelo *</label>
-                    <input type="text" name="nombre" required placeholder="ej. Nike Air Force 1" class="w-full bg-darkbg border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+
+                        Nombre / Modelo *
+
+                    </label>
+
+                    <input type="text"
+                           name="nombre"
+                           required
+                           maxlength="80"
+                           placeholder="Ej. Nike Air Force 1"
+                           class="w-full bg-darkbg border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+
                 </div>
+
+
+
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">Categoría *</label>
-                    <select name="categoria" required class="w-full bg-darkbg border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+
+                        Categoría *
+
+                    </label>
+
+
+                    <select name="categoria"
+                            required
+                            class="w-full bg-darkbg border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+
                         <option value="Urbano">Urbano</option>
+
                         <option value="Deportivo">Deportivo</option>
+
                         <option value="Running">Running</option>
+
                         <option value="Basketball">Basketball</option>
+
                         <option value="Casual">Casual</option>
+
                     </select>
+
                 </div>
+
+
+
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">Existencias (Stock inicial) *</label>
-                    <input type="number" name="existencias" value="5" min="1" required class="w-full bg-darkbg border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+
+                        Existencias (Stock inicial) *
+
+                    </label>
+
+
+                    <input type="number"
+                           name="existencias"
+                           value="5"
+                           min="1"
+                           required
+                           class="w-full bg-darkbg border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500">
+
                 </div>
-                <input type="hidden" name="estado" value="Disponible">
-                
+
+
+                <!-- NUEVO CAMPO: FOTOGRAFÍA -->
+
+                <div>
+
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-gray-300 mb-1.5">
+
+                        Fotografía del tenis (URL)
+
+                    </label>
+
+                    <input
+                        type="url"
+                        name="imagen"
+                        id="imagen"
+                        placeholder="https://ejemplo.com/tenis.jpg"
+                        class="w-full bg-darkbg border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500"
+                    >
+
+                    <p class="text-xs text-gray-500 mt-2">
+
+                        Pega el enlace directo de una fotografía. Este campo es opcional.
+
+                    </p>
+
+                </div>
+
+
+                <input type="hidden"
+                       name="estado"
+                       value="Disponible">
+
+
+
+                <!-- BOTONES DEL MODAL -->
+
                 <div class="pt-4 border-t border-gray-800 flex items-center justify-end space-x-3">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl border border-gray-700 text-gray-300 hover:bg-gray-800 text-sm">Cancelar</button>
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold">Guardar</button>
+
+
+                    <button type="button"
+                            onclick="closeModal()"
+                            class="px-4 py-2.5 rounded-xl border border-gray-700 text-gray-300 hover:bg-gray-800 text-sm">
+
+                        Cancelar
+
+                    </button>
+
+
+                    <button type="submit"
+                            class="px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold">
+
+                        Guardar producto
+
+                    </button>
+
                 </div>
+
             </form>
+
         </div>
+
     </div>
 
-    <!-- JAVASCRIPT AUXILIAR PARA LA RESERVA -->
+
+
+    <!-- ===================================== -->
+    <!-- JAVASCRIPT -->
+    <!-- ===================================== -->
+
     <script>
+
+
+        // ABRIR MODAL
+
         function openModal() {
-            document.getElementById('product-modal').classList.remove('hidden');
-        }
-        function closeModal() {
-            document.getElementById('product-modal').classList.add('hidden');
+
+            const modal = document.getElementById('product-modal');
+
+            modal.classList.remove('hidden');
+
+            modal.classList.add('flex');
+
         }
 
-        async function reservarProducto(id) {
-            try {
-                let response = await fetch(`/reservar/${id}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                let data = await response.json();
-                if (data.success) {
-                    alert(data.message);
-                    location.reload();
-                } else {
-                    alert(data.message);
-                    location.reload();
-                }
-            } catch (error) {
-                alert("Ocurrió un error al procesar la reserva.");
-            }
+
+
+        // CERRAR MODAL
+
+        function closeModal() {
+
+            const modal = document.getElementById('product-modal');
+
+            modal.classList.add('hidden');
+
+            modal.classList.remove('flex');
+
         }
+
+
+
+        // CERRAR MODAL AL HACER CLIC FUERA
+
+        document.getElementById('product-modal').addEventListener('click', function(event) {
+
+            if (event.target === this) {
+
+                closeModal();
+
+            }
+
+        });
+
+
+
+        // RESERVAR PRODUCTO
+
+        async function reservarProducto(id) {
+
+            try {
+
+                const response = await fetch(`/reservar/${id}`, {
+
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+
+                });
+
+
+                const data = await response.json();
+
+
+                if (data.success) {
+
+                    alert(data.message);
+
+                    window.location.href = "{{ url_for('ver_carrito') }}";
+
+                } else {
+
+                    alert(data.message);
+
+                    location.reload();
+
+                }
+
+
+            } catch (error) {
+
+                console.error("Error:", error);
+
+                alert("Ocurrió un error al procesar la reserva. Intenta nuevamente.");
+
+            }
+
+        }
+
+
     </script>
+
 </body>
 </html>
