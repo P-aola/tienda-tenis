@@ -392,33 +392,39 @@ def eliminar(id):
 
 
 # =====================================================
-# RESERVAR PRODUCTOS
+# RESERVAR PRODUCTOS (SOPORTA GET Y POST)
 # =====================================================
 
-@app.route("/reservar/<id>", methods=["POST"])
+@app.route("/reservar/<id>", methods=["GET", "POST"])
 def reservar(id):
 
     liberar_reservas_vencidas()
 
     if not ObjectId.is_valid(id):
-        return jsonify({
-            "success": False,
-            "message": "Producto no válido."
-        }), 404
+        if request.method == "POST":
+            return jsonify({"success": False, "message": "Producto no válido."}), 404
+        abort(404, description="Producto no válido.")
 
     reserva_id = obtener_reserva_id()
 
     if reservar_unidad(id, reserva_id):
+        if request.method == "POST":
+            return jsonify({
+                "success": True,
+                "message": "Producto reservado temporalmente por 5 minutos."
+            }), 200
+        
+        flash("Producto reservado temporalmente por 5 minutos.", "success")
+        return redirect(url_for("ver_carrito"))
 
+    if request.method == "POST":
         return jsonify({
-            "success": True,
-            "message": "Producto reservado temporalmente por 5 minutos."
-        }), 200
+            "success": False,
+            "message": "La última unidad acaba de ser reservada por otro usuario."
+        }), 409
 
-    return jsonify({
-        "success": False,
-        "message": "La última unidad acaba de ser reservada por otro usuario."
-    }), 409
+    flash("La última unidad acaba de ser reservada por otro usuario.", "error")
+    return redirect(url_for("index"))
 
 
 # =====================================================
