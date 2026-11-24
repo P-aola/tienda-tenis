@@ -61,11 +61,41 @@
             </div>
         </div>
 
-        <div style="margin: 15px 0; display: flex; gap: 10px;">
+        <div style="margin: 15px 0; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
             <a class="boton boton-secundario" href="{{ url_for('ver_producto', id=producto._id | string) }}">Ver detalles</a>
             <a class="boton boton-claro" href="{{ url_for('editar', id=producto._id | string) }}">Editar</a>
+            
+            {% if producto.disponibles > 0 %}
+            <button type="button" class="boton boton-primario" onclick="reservarProducto('{{ producto._id | string }}')" style="cursor: pointer;">
+                Reservar (5 min)
+            </button>
+            {% else %}
+            <button type="button" class="boton boton-claro" disabled style="opacity: 0.6; cursor: not-allowed;">
+                Sin stock
+            </button>
+            {% endif %}
         </div>
     </article>
     {% endfor %}
 </section>
+
+<script>
+async function reservarProducto(id) {
+    try {
+        const respuesta = await fetch(`/reservar/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const datos = await respuesta.json();
+        alert(datos.message);
+        if (datos.success) {
+            window.location.reload();
+        }
+    } catch (error) {
+        alert("Ocurrió un error al intentar reservar el producto.");
+    }
+}
+</script>
 {% endblock %}
