@@ -10,22 +10,22 @@
                 </h4>
                 <p class="text-muted small mb-4">Modifica los detalles del tenis seleccionado.</p>
 
-                <form action="{{ url_for('editar', id=alumno._id) }}" method="POST" class="row g-3">
+                <form action="{{ url_for('editar', id=producto._id) }}" method="POST" class="row g-3">
                     <div class="col-12">
                         <label for="nombre" class="form-label fw-semibold">Producto / Modelo</label>
-                        <input type="text" id="nombre" name="nombre" class="form-control rounded-3" value="{{ alumno.nombre }}" required maxlength="80">
+                        <input type="text" id="nombre" name="nombre" class="form-control rounded-3" value="{{ producto.nombre }}" required maxlength="80">
                     </div>
                     
                     <div class="col-md-6">
                         <label for="categoria" class="form-label fw-semibold">Categoría / Estilo</label>
-                        <input type="text" id="categoria" name="categoria" class="form-control rounded-3" value="{{ alumno.categoria }}" required maxlength="20">
+                        <input type="text" id="categoria" name="categoria" class="form-control rounded-3" value="{{ producto.categoria }}" required maxlength="20">
                     </div>
                     
                     <div class="col-md-6">
                         <label for="estado" class="form-label fw-semibold">Estado</label>
                         <select id="estado" name="estado" class="form-select rounded-3" required>
                             {% for opcion in ['Disponible', 'Agotado'] %}
-                            <option value="{{ opcion }}" {% if alumno.get('estado') == opcion %}selected{% endif %}>
+                            <option value="{{ opcion }}" {% if producto.get('estado') == opcion %}selected{% endif %}>
                                 {{ opcion }}
                             </option>
                             {% endfor %}
