@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Catálogo - Sneaker Store{% endblock %}
+
+{% block contenido %}
+<section class="hero">
+    <div>
+        <span class="etiqueta">INVENTARIO Y RESERVAS</span>
+        <h1>Control de stock y reservas temporales</h1>
+        <p>
+            Administra los modelos de tenis disponibles, verifica existencias en tiempo real y realiza reservas temporales con MongoDB Atlas.
+        </p>
+    </div>
+    <div class="pasos">
+        <strong>Cómo funciona</strong>
+        <span>1. Explora el catálogo</span>
+        <span>2. Reserva un par temporalmente</span>
+        <span>3. Gestiona existencias y stock</span>
+    </div>
+</section>
+
+<div class="aviso-base">
+    Conexión activa: base <strong>tienda_tenis</strong>, colección <strong>productos</strong>.
+</div>
+
+<section class="titulo-seccion">
+    <div>
+        <h2>Catálogo de Tenis</h2>
+        <p>Modelos disponibles y control de unidades en tiempo real.</p>
+    </div>
+    <a class="boton boton-primario" href="{{ url_for('agregar') }}">+ Agregar producto</a>
+</section>
+
+<section class="rejilla">
+    {% for producto in productos %}
+    <article class="tarjeta">
+        <div class="producto-cabecera">
+            {% if producto.imagen %}
+                <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+            {% else %}
+                <div class="icono-producto">👟</div>
+            {% endif %}
+            <div>
+                <span class="categoria">{{ producto.categoria }}</span>
+                <h3>{{ producto.nombre }}</h3>
+                <span class="estado estado-{{ producto.estado|lower|replace(' ', '-') }}">{{ producto.estado }}</span>
+            </div>
+        </div>
+
+        <p class="ubicacion"><strong>Existencias totales:</strong> {{ producto.existencias }}</p>
+        <p class="ubicacion"><strong>Disponibles para venta:</strong> {{ producto.disponibles }}</p>
+
+        <!-- SECCIÓN DE CÓDIGO QR Y ENLACES -->
+        <div class="zona-qr" style="margin: 15px 0; padding: 12px; background: #f9f9f9; border-radius: 8px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee;">
+            <img src="{{ producto.enlace_qr }}" alt="QR de {{ producto.nombre }}" style="width: 75px; height: 75px; border-radius: 4px;">
+            <div>
+                <small style="display: block; color: #555; margin-bottom: 8px; font-size: 0.85rem;">Escanea el QR o comparte el enlace:</small>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <a class="boton boton-secundario" href="{{ producto.enlace_publico }}" target="_blank" style="padding: 4px 10px; font-size: 0.85rem;">Abrir ficha</a>
+                    <button class="boton boton-claro" type="button" onclick="navigator.clipboard.writeText('{{ producto.enlace_publico }}'); alert('¡Enlace copiado al portapapeles!');" style="padding: 4px 10px; font-size: 0.85rem; cursor: pointer;">Copiar URL</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin: 15px 0; display: flex; gap: 10px;">
+            <a class="boton boton-secundario" href="{{ url_for('ver_producto', id=producto._id | string) }}">Ver detalles</a>
+            <a class="boton boton-claro" href="{{ url_for('editar', id=producto._id | string) }}">Editar</a>
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

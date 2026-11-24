@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Error - Sneaker Store{% endblock %}
+
+{% block contenido %}
+<section class="hero" style="text-align: center; padding: 40px 20px;">
+    <div>
+        <span class="etiqueta" style="background: #ff4d4d; color: white;">¡Atención!</span>
+        <h1 style="margin-top: 15px;">{{ mensaje | default("Ha ocurrido un error en la solicitud.") }}</h1>
+        <p style="margin: 20px 0; color: #666;">
+            El producto que buscas ya no existe, la clave no es válida o ocurrió un inconveniente temporal.
+        </p>
+        <a class="boton boton-primario" href="{{ url_for('index') }}" style="display: inline-block; margin-top: 10px;">Volver al Catálogo</a>
+    </div>
+</section>
+{% endblock %}

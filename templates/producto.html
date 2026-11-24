@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}{{ producto.nombre }} - Sneaker Store{% endblock %}
+
+{% block contenido %}
+<section class="hero" style="padding: 30px 20px;">
+    <div>
+        <span class="etiqueta">{{ producto.categoria }}</span>
+        <h1>{{ producto.nombre }}</h1>
+        <p>Consulta el estado actual de este modelo, existencias y realiza una reserva temporal.</p>
+    </div>
+</section>
+
+<div class="aviso-base">
+    Estado actual: <strong class="estado estado-{{ producto.estado|lower|replace(' ', '-') }}">{{ producto.estado }}</strong>
+</div>
+
+<section class="tarjeta" style="max-width: 600px; margin: 20px auto; padding: 25px;">
+    <div style="text-align: center; margin-bottom: 20px;">
+        {% if producto.imagen %}
+            <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" style="max-width: 100%; height: 250px; object-fit: cover; border-radius: 12px;">
+        {% else %}
+            <div style="font-size: 80px;">👟</div>
+        {% endif %}
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px; font-size: 1.1rem; margin-bottom: 20px;">
+        <p><strong>Categoría:</strong> {{ producto.categoria }}</p>
+        <p><strong>Existencias Totales:</strong> {{ producto.existencias }}</p>
+        <p><strong>Unidades Reservadas:</strong> {{ producto.reservadas }}</p>
+        <p><strong>Disponibles para Compra:</strong> <span style="color: #2b7a78; font-weight: bold;">{{ producto.disponibles }}</span></p>
+    </div>
+
+    {% if producto.disponibles > 0 %}
+        <button id="btn-reservar" class="boton boton-primario" data-id="{{ producto._id }}" style="width: 100%; padding: 12px; font-size: 1rem; cursor: pointer;">
+            Reservar por 5 minutos ⏱️
+        </button>
+        <p id="mensaje-reserva" style="margin-top: 10px; text-align: center; font-weight: bold;"></p>
+    {% else %}
+        <p style="color: #ff4d4d; font-weight: bold; text-align: center;">Producto agotado temporalmente.</p>
+    {% endif %}
+
+    <div style="margin-top: 20px; text-align: center;">
+        <a class="boton boton-secundario" href="{{ url_for('index') }}">Volver al Catálogo</a>
+        <a class="boton boton-claro" href="{{ url_for('ver_carrito') }}">Ver Carrito 🛒</a>
+    </div>
+</section>
+
+<script>
+    document.getElementById('btn-reservar')?.addEventListener('click', async function() {
+        const productoId = this.dataset.id;
+        const respuesta = await fetch(`/reservar/${productoId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const resultado = await respuesta.json();
+        
+        const mensajeP = document.getElementById('mensaje-reserva');
+        mensajeP.textContent = resultado.message;
+        if (resultado.success) {
+            mensajeP.style.color = 'green';
+            setTimeout(() => { location.reload(); }, 1500);
+        } else {
+            mensajeP.style.color = 'red';
+        }
+    });
+</script>
+{% endblock %}

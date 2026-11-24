@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Registro no encontrado{% endblock %}
+
+{% block contenido %}
+<section class="no-encontrado">
+    <div class="numero-error">404</div>
+    <span class="etiqueta">PRUEBA SUPERADA</span>
+    <h1>Este registro no existe</h1>
+    <p>
+        La dirección fue reconocida, pero no se encontró un registro con ese
+        identificador. La aplicación respondió sin detenerse.
+    </p>
+    <a class="boton boton-primario" href="{{ url_for('inicio') }}">Regresar al catálogo</a>
+</section>
+{% endblock %}

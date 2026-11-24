@@ -1,0 +1,33 @@
+PROYECTO QR - FLASK + MONGODB ATLAS
+
+MAC
+1. python3 -m venv .venv
+2. source .venv/bin/activate
+3. python3 -m pip install -r requirements.txt
+4. cp .env.example .env
+5. Abrir .env y pegar la cadena completa en MONGO_URI
+6. python3 app.py
+7. Abrir http://127.0.0.1:5000
+
+WINDOWS
+1. py -m venv .venv
+2. .venv\Scripts\activate
+3. python -m pip install -r requirements.txt
+4. copy .env.example .env
+5. Abrir .env y pegar la cadena completa en MONGO_URI
+6. python app.py
+7. Abrir http://127.0.0.1:5000
+
+RENDER
+Build Command: pip install -r requirements.txt
+Start Command: gunicorn app:app
+
+Variables:
+MONGO_URI = cadena completa de Atlas
+MONGO_DB = catalogo_qr
+SECRET_KEY = una frase larga y privada
+
+IMPORTANTE
+- No escribir un punto despues de requirements.txt
+- No subir el archivo .env a GitHub
+- Para escanear desde celular, usar la aplicacion publicada en Render

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Configurar MongoDB Atlas{% endblock %}
+
+{% block contenido %}
+<section class="formulario-panel ayuda-mongo">
+    <span class="etiqueta">FALTA UN SOLO PASO</span>
+    <h1>Agrega la conexión de MongoDB Atlas</h1>
+    <p>
+        La aplicación está funcionando, pero todavía no conoce la dirección de
+        la base de datos. Copia <strong>.env.example</strong> como
+        <strong>.env</strong> y pega tu cadena en <strong>MONGO_URI</strong>.
+    </p>
+
+    <div class="ejemplo-configuracion">
+        MONGO_URI=mongodb+srv://usuario:contrasena@cluster.mongodb.net/...
+    </div>
+
+    <ol>
+        <li>Guarda el archivo <strong>.env</strong>.</li>
+        <li>Detén la aplicación con <strong>Control + C</strong>.</li>
+        <li>Ejecuta otra vez <strong>python3 app.py</strong>.</li>
+    </ol>
+
+    <p class="nota-seguridad">
+        No subas el archivo .env a GitHub. Ya está protegido en .gitignore.
+    </p>
+</section>
+{% endblock %}

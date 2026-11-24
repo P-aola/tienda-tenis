@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ producto.nombre }} - Ficha publica{% endblock %}
+
+{% block contenido %}
+<section class="ficha-publica">
+    <div class="ficha-sello">FICHA PUBLICA</div>
+    <div class="ficha-icono">{{ producto.icono }}</div>
+    <span class="categoria">{{ producto.categoria }}</span>
+    <h1>{{ producto.nombre }}</h1>
+    <span class="estado grande estado-{{ producto.estado|lower|replace(' ', '-') }}">{{ 'Últimas unidades' if producto.estado == 'Ultimas unidades' else producto.estado }}</span>
+
+    <div class="ficha-datos">
+        <div>
+            <small>Descripción</small>
+            <p>{{ producto.descripcion }}</p>
+        </div>
+        <div>
+            <small>Dónde encontrarlo</small>
+            <p>{{ producto.ubicacion }}</p>
+        </div>
+        <div>
+            <small>Identificador</small>
+            <p>#{{ producto.id }}</p>
+        </div>
+        <div>
+            <small>Última actualización</small>
+            <p>{{ producto.actualizado }}</p>
+        </div>
+    </div>
+
+    <div class="mensaje-vivo">
+        Esta información se consultó en la base de datos al abrir la ficha.
+    </div>
+    <a class="boton boton-primario" href="{{ url_for('inicio') }}">Volver al catálogo</a>
+</section>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Nuevo registro - Laboratorio QR{% endblock %}
+
+{% block contenido %}
+<section class="formulario-panel">
+    <div>
+        <span class="etiqueta">NUEVO REGISTRO</span>
+        <h1>Agrega un ejemplo al catalogo</h1>
+        <p>Al guardarlo, la aplicación le asignará una ficha y un QR automáticamente.</p>
+    </div>
+
+    <form method="post" class="formulario">
+        <label>Nombre
+            <input type="text" name="nombre" placeholder="Ej. Galleta de avena" required>
+        </label>
+        <label>Categoría
+            <input type="text" name="categoria" placeholder="Ej. Postre" required>
+        </label>
+        <label>Descripción
+            <textarea name="descripcion" rows="4" placeholder="Describe brevemente el registro" required></textarea>
+        </label>
+        <label>Ubicación
+            <input type="text" name="ubicacion" placeholder="Ej. Vitrina principal" required>
+        </label>
+        <label>Texto corto para el ícono
+            <input type="text" name="icono" maxlength="8" placeholder="Ej. GALLETA">
+        </label>
+        <div class="acciones-formulario">
+            <a class="boton boton-contorno" href="{{ url_for('inicio') }}">Cancelar</a>
+            <button class="boton boton-primario" type="submit">Guardar y generar QR</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

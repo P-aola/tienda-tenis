@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}No fue posible conectar con MongoDB{% endblock %}
+
+{% block contenido %}
+<section class="no-encontrado">
+    <div class="numero-error">DB</div>
+    <span class="etiqueta">CONEXIÓN NO DISPONIBLE</span>
+    <h1>Revisa MongoDB Atlas</h1>
+    <p>
+        La dirección fue encontrada, pero Atlas no permitió la conexión.
+        Comprueba el usuario, la contraseña y los permisos de Network Access.
+    </p>
+    <a class="boton boton-primario" href="{{ url_for('inicio') }}">Intentar nuevamente</a>
+</section>
+{% endblock %}
