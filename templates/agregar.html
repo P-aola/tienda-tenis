@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block contenido %}
+<section>
+<h2>Agregar zapas</h2>
+<p>Ingresa los datos del nuevo modelo para agregarlo al catálogo.</p>
+<form method="POST" action="{{ url_for('agregar') }}" class="registro">
+<div class="mb-3">
+    <label for="nombre" class="form-label">Modelo de Tenis</label>
+    <input id="nombre" name="nombre" class="form-control" required maxlength="80" placeholder="Ejemplo: Air Force 1">
+</div>
+<div class="mb-3">
+    <label for="categoria" class="form-label">Categoría / Estilo</label>
+    <input id="categoria" name="categoria" class="form-control" required maxlength="20" placeholder="Ejemplo: Urbano">
+</div>
+<div class="mb-3">
+    <label for="estado" class="form-label">Estado</label>
+    <select id="estado" name="estado" class="form-select" required>
+        <option value="">Selecciona</option>
+        <option value="Disponible">Disponible</option>
+        <option value="Agotado">Agotado</option>
+    </select>
+</div>
+<button class="boton">Guardar producto</button>
+<a class="boton secundario" href="{{ url_for('index') }}">Cancelar</a>
+</form>
+</section>
+{% endblock %}
